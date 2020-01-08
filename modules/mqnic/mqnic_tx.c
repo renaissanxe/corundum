@@ -186,6 +186,10 @@ int mqnic_free_tx_buf(struct mqnic_priv *priv, struct mqnic_ring *ring)
         cnt++;
     }
 
+    ring->head_ptr = 0;
+    ring->tail_ptr = 0;
+    ring->clean_tail_ptr = 0;
+
     return cnt;
 }
 
@@ -413,7 +417,7 @@ netdev_tx_t mqnic_start_xmit(struct sk_buff *skb, struct net_device *ndev)
     stop_queue = mqnic_is_tx_ring_full(ring);
     if (unlikely(stop_queue))
     {
-        dev_info(&priv->mdev->pdev->dev, "mqnic_start_xmit TX ring full on port %d", priv->port);
+        dev_info(&priv->mdev->pdev->dev, "mqnic_start_xmit TX ring %d full on port %d", ring_index, priv->port);
         netif_tx_stop_queue(ring->tx_queue);
     }
 

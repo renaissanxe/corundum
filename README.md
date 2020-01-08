@@ -5,16 +5,16 @@ GitHub repository: https://github.com/ucsdsysnet/corundum
 ## Introduction
 
 Corundum is an open-source, high-performance FPGA-based NIC.  Features include
-a high performance datapath (256 bit AXI), 10G Ethernet, PCI express gen 3, a
+a high performance datapath, 10G/25G/100G Ethernet, PCI express gen 3, a
 custom, high performance, tightly-integrated PCIe DMA engine, many (1000+)
 transmit, receive, completion, and event queues, MSI interrupts, multiple
 interfaces, multiple ports per interface, per-port transmit scheduling
-including high precision TDMA, checksum offloading, and native IEEE 1588 PTP
-timestamping.  A Linux driver is included that integrates with the Linux
-networking stack.  Development and debugging is facilitated by an extensive
-simulation framwork that covers the entire system from a simulation model of
-the driver and PCI express interface on one side to the Ethernet interfaces on
-the other side.
+including high precision TDMA, flow hashing, RSS, checksum offloading, and
+native IEEE 1588 PTP timestamping.  A Linux driver is included that integrates
+with the Linux networking stack.  Development and debugging is facilitated by
+an extensive simulation framework that covers the entire system from a
+simulation model of the driver and PCI express interface on one side to the
+Ethernet interfaces on the other side.
 
 Corundum has several unique architectural features.  First, transmit, receive,
 completion, and event queue states are stored efficiently in block RAM or
@@ -25,30 +25,56 @@ extremely fine-grained control over packet transmission.  Coupled with PTP time
 synchronization, this enables high precision TDMA.
 
 Corundum currently supports Xilinx Ultrascale and Ultrascale Plus series
-devices.  Desgins are included for the following FPGA boards:
+devices.  Designs are included for the following FPGA boards:
 
 *  Alpha Data ADM-PCIE-9V3 (Xilinx Virtex Ultrascale Plus XCVU3P)
 *  Exablaze ExaNIC X10 (Xilinx Kintex Ultrascale XCKU035)
+*  Exablaze ExaNIC X25 (Xilinx Kintex Ultrascale Plus XCKU3P)
 *  Xilinx VCU108 (Xilinx Virtex Ultrascale XCVU095)
 *  Xilinx VCU118 (Xilinx Virtex Ultrascale Plus XCVU9P)
+
+For operation at 10G and 25G, Corundum uses the open source 10G/25G MAC and
+PHY modules from the verilog-ethernet repository, no extra licenses are
+required.  However, it is possible to use other MAC and/or PHY modules.
+Operation at 100G currently requires using the Xilinx CMAC core with RS-FEC
+enabled, which is covered by the free CMAC license on Xilinx Ultrascale+ parts.
 
 ## Documentation
 
 ### Modules
+
+#### cmac_pad module
+
+Frame pad module for 512 bit 100G CMAC TX interface.  Zero pads transmit
+frames to minimum 64 bytes.
+
+#### cpl_op_mux module
+
+Completion operation multiplexer module.  Merges completion write operations
+from different sources to enable sharing a single cpl_write module instance.
 
 #### cpl_queue_manager module
 
 Completion queue manager module.  Stores device to host queue state in block
 RAM or ultra RAM.
 
+#### cpl_write module
+
+Completion write module.  Responsible for writing completion and event entries
+into host memory.
+
+#### desc_fetch module
+
+Descriptor fetch module.  Responsible for reading descriptors from host memory.
+
+#### desc_op_mux module
+
+Descriptor operation multiplexer module.  Merges descriptor fetch operations
+from different sources to enable sharing a single cpl_write module instance.
+
 #### event_mux module
 
 Event mux module.  Enables multiple event sources to feed the same event queue.
-
-#### event_queue module
-
-Event queue module.  Responsible for writing event queue entries into host
-memory.
 
 #### interface module
 
@@ -73,6 +99,11 @@ frame payload to aid in IP checksum offloading.
 Receive engine.  Manages receive descriptor dequeue and fetch via DMA, packet
 reception, data writeback via DMA, and completion enqueue and writeback via
 DMA.  Handles PTP timestamps for inclusion in completion records.
+
+#### rx_hash module
+
+Receive hash computation module.  Extracts IP addresses and ports from packet
+headers and computes 32 bit Toeplitz flow hash.
 
 #### tdma_ber_ch module
 
@@ -102,20 +133,24 @@ Transmit engine.  Manages receive descriptor dequeue and fetch via DMA, packet
 data fetch via DMA, packet transmission, and completion enqueue and writeback
 via DMA.  Handles PTP timestamps for inclusion in completion records.
 
+#### tx_scheduler_ctrl_tdma module
+
+TDMA transmit scheduler control module.  Controls queues in a transmit
+scheduler based on PTP time, via a tdma_scheduler instance.
+
 #### tx_scheduler_rr module
 
 Round-robin transmit scheduler.  Determines which queues from which to send
 packets.
 
-#### tx_scheduler_tdma_rr module
-
-Round-robin TDMA transmit scheduler.  Determines which queues from which to
-send packets.  Contains a tdma_scheduler instance to control configuration
-based on PTP time.
-
 ### Source Files
 
+    cmac_pad.v               : Pad frames to 64 bytes for CMAC TX
+    cpl_op_mux.v             : Completion operation mux
     cpl_queue_manager.v      : Completion queue manager
+    cpl_write.v              : Completion write module
+    desc_fetch.v             : Descriptor fetch module
+    desc_op_mux.v            : Descriptor operation mux
     event_mux.v              : Event mux
     event_queue.v            : Event queue
     interface.v              : Interface
@@ -123,13 +158,14 @@ based on PTP time.
     queue_manager.v          : Queue manager
     rx_checksum.v            : Receive checksum offload
     rx_engine.v              : Receive engine
+    rx_hash.v                : Receive hashing module
     tdma_ber_ch.v            : TDMA BER channel
     tdma_ber.v               : TDMA BER
     tdma_scheduler.v         : TDMA scheduler
     tx_checksum.v            : Transmit checksum offload
     tx_engine.v              : Transmit engine
+    tx_scheduler_ctrl_tdma.v : TDMA transmit scheduler controller
     tx_scheduler_rr.v        : Round robin transmit scheduler
-    tx_scheduler_tdma_rr.v   : Round robin TDMA transmit scheduler
 
 ## Testing
 

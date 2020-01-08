@@ -63,6 +63,7 @@ srcs.append("../rtl/common/cpl_queue_manager.v")
 srcs.append("../rtl/common/tx_engine.v")
 srcs.append("../rtl/common/rx_engine.v")
 srcs.append("../rtl/common/tx_checksum.v")
+srcs.append("../rtl/common/rx_hash.v")
 srcs.append("../rtl/common/rx_checksum.v")
 srcs.append("../rtl/common/tx_scheduler_rr.v")
 srcs.append("../rtl/common/event_mux.v")
@@ -134,6 +135,8 @@ def bench():
     AXIS_PCIE_RQ_USER_WIDTH = 137
     AXIS_PCIE_CQ_USER_WIDTH = 183
     AXIS_PCIE_CC_USER_WIDTH = 81
+    RQ_SEQ_NUM_WIDTH = 6
+    BAR0_APERTURE = 24
 
     # Inputs
     clk = Signal(bool(0))
@@ -164,12 +167,22 @@ def bench():
     s_axis_cq_tuser = Signal(intbv(0)[AXIS_PCIE_CQ_USER_WIDTH:])
     s_axis_cq_tvalid = Signal(bool(0))
     m_axis_cc_tready = Signal(bool(0))
+    s_axis_rq_seq_num_0 = Signal(intbv(0)[RQ_SEQ_NUM_WIDTH:])
+    s_axis_rq_seq_num_valid_0 = Signal(bool(0))
+    s_axis_rq_seq_num_1 = Signal(intbv(0)[RQ_SEQ_NUM_WIDTH:])
+    s_axis_rq_seq_num_valid_1 = Signal(bool(0))
     pcie_tfc_nph_av = Signal(intbv(15)[4:])
     pcie_tfc_npd_av = Signal(intbv(15)[4:])
     cfg_max_payload = Signal(intbv(0)[2:])
     cfg_max_read_req = Signal(intbv(0)[3:])
     cfg_mgmt_read_data = Signal(intbv(0)[32:])
     cfg_mgmt_read_write_done = Signal(bool(0))
+    cfg_fc_ph = Signal(intbv(0)[8:])
+    cfg_fc_pd = Signal(intbv(0)[12:])
+    cfg_fc_nph = Signal(intbv(0)[8:])
+    cfg_fc_npd = Signal(intbv(0)[12:])
+    cfg_fc_cplh = Signal(intbv(0)[8:])
+    cfg_fc_cpld = Signal(intbv(0)[12:])
     cfg_interrupt_msi_enable = Signal(intbv(0)[4:])
     cfg_interrupt_msi_mmenable = Signal(intbv(0)[12:])
     cfg_interrupt_msi_mask_update = Signal(bool(0))
@@ -255,6 +268,7 @@ def bench():
     cfg_mgmt_write_data = Signal(intbv(0)[32:])
     cfg_mgmt_byte_enable = Signal(intbv(0)[4:])
     cfg_mgmt_read = Signal(bool(0))
+    cfg_fc_sel = Signal(intbv(4)[3:])
     cfg_interrupt_msi_int = Signal(intbv(0)[32:])
     cfg_interrupt_msi_pending_status = Signal(intbv(0)[32:])
     cfg_interrupt_msi_select = Signal(intbv(0)[2:])
@@ -359,8 +373,7 @@ def bench():
 
     dev.functions[0].msi_multiple_message_capable = 5
 
-    dev.functions[0].configure_bar(0, 16*1024*1024)
-    dev.functions[0].configure_bar(1, 16*1024*1024)
+    dev.functions[0].configure_bar(0, 2**BAR0_APERTURE)
 
     rc.make_port().connect(dev)
 
@@ -396,10 +409,10 @@ def bench():
         s_axis_rq_tkeep=m_axis_rq_tkeep,
         s_axis_rq_tvalid=m_axis_rq_tvalid,
         s_axis_rq_tready=m_axis_rq_tready,
-        #pcie_rq_seq_num0=pcie_rq_seq_num0,
-        #pcie_rq_seq_num_vld0=pcie_rq_seq_num_vld0,
-        #pcie_rq_seq_num1=pcie_rq_seq_num1,
-        #pcie_rq_seq_num_vld1=pcie_rq_seq_num_vld1,
+        pcie_rq_seq_num0=s_axis_rq_seq_num_0,
+        pcie_rq_seq_num_vld0=s_axis_rq_seq_num_valid_0,
+        pcie_rq_seq_num1=s_axis_rq_seq_num_1,
+        pcie_rq_seq_num_vld1=s_axis_rq_seq_num_valid_1,
         #pcie_rq_tag0=pcie_rq_tag0,
         #pcie_rq_tag1=pcie_rq_tag1,
         #pcie_rq_tag_av=pcie_rq_tag_av,
@@ -469,13 +482,13 @@ def bench():
         #cfg_msg_transmit_done=cfg_msg_transmit_done,
 
         # Configuration Flow Control Interface
-        #cfg_fc_ph=cfg_fc_ph,
-        #cfg_fc_pd=cfg_fc_pd,
-        #cfg_fc_nph=cfg_fc_nph,
-        #cfg_fc_npd=cfg_fc_npd,
-        #cfg_fc_cplh=cfg_fc_cplh,
-        #cfg_fc_cpld=cfg_fc_cpld,
-        #cfg_fc_sel=cfg_fc_sel,
+        cfg_fc_ph=cfg_fc_ph,
+        cfg_fc_pd=cfg_fc_pd,
+        cfg_fc_nph=cfg_fc_nph,
+        cfg_fc_npd=cfg_fc_npd,
+        cfg_fc_cplh=cfg_fc_cplh,
+        cfg_fc_cpld=cfg_fc_cpld,
+        cfg_fc_sel=cfg_fc_sel,
 
         # Configuration Control Interface
         #cfg_hot_reset_in=cfg_hot_reset_in,
@@ -601,6 +614,10 @@ def bench():
         m_axis_cc_tready=m_axis_cc_tready,
         m_axis_cc_tuser=m_axis_cc_tuser,
         m_axis_cc_tvalid=m_axis_cc_tvalid,
+        s_axis_rq_seq_num_0=s_axis_rq_seq_num_0,
+        s_axis_rq_seq_num_valid_0=s_axis_rq_seq_num_valid_0,
+        s_axis_rq_seq_num_1=s_axis_rq_seq_num_1,
+        s_axis_rq_seq_num_valid_1=s_axis_rq_seq_num_valid_1,
         pcie_tfc_nph_av=pcie_tfc_nph_av,
         pcie_tfc_npd_av=pcie_tfc_npd_av,
         cfg_max_payload=cfg_max_payload,
@@ -613,6 +630,13 @@ def bench():
         cfg_mgmt_read=cfg_mgmt_read,
         cfg_mgmt_read_data=cfg_mgmt_read_data,
         cfg_mgmt_read_write_done=cfg_mgmt_read_write_done,
+        cfg_fc_ph=cfg_fc_ph,
+        cfg_fc_pd=cfg_fc_pd,
+        cfg_fc_nph=cfg_fc_nph,
+        cfg_fc_npd=cfg_fc_npd,
+        cfg_fc_cplh=cfg_fc_cplh,
+        cfg_fc_cpld=cfg_fc_cpld,
+        cfg_fc_sel=cfg_fc_sel,
         cfg_interrupt_msi_enable=cfg_interrupt_msi_enable,
         cfg_interrupt_msi_int=cfg_interrupt_msi_int,
         cfg_interrupt_msi_sent=cfg_interrupt_msi_sent,
@@ -844,9 +868,9 @@ def bench():
         #yield from driver.interfaces[1].open()
 
         # enable queues
-        yield from rc.mem_write_dword(driver.interfaces[0].ports[0].hw_addr+0x0040, 0x00000001)
-        for k in range(32):
-            yield from rc.mem_write_dword(driver.interfaces[0].ports[0].schedulers[0].hw_addr+4*k, 0x00000001)
+        yield from rc.mem_write_dword(driver.interfaces[0].ports[0].hw_addr+mqnic.MQNIC_PORT_REG_SCHED_ENABLE, 0x00000001)
+        for k in range(driver.interfaces[0].tx_queue_count):
+            yield from rc.mem_write_dword(driver.interfaces[0].ports[0].schedulers[0].hw_addr+4*k, 0x00000003)
 
         yield from rc.mem_read(driver.hw_addr, 4) # wait for all writes to complete
 

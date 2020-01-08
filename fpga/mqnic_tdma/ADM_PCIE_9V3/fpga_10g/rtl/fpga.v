@@ -117,7 +117,10 @@ module fpga (
 
     inout  wire         eeprom_i2c_scl,
     inout  wire         eeprom_i2c_sda,
-    output wire         eeprom_wp
+    output wire         eeprom_wp,
+
+    inout  wire [3:0]   qspi_1_dq,
+    output wire         qspi_1_cs
 );
 
 parameter AXIS_PCIE_DATA_WIDTH = 512;
@@ -126,6 +129,8 @@ parameter AXIS_PCIE_RC_USER_WIDTH = 161;
 parameter AXIS_PCIE_RQ_USER_WIDTH = 137;
 parameter AXIS_PCIE_CQ_USER_WIDTH = 183;
 parameter AXIS_PCIE_CC_USER_WIDTH = 81;
+parameter RQ_SEQ_NUM_WIDTH = 6;
+parameter BAR0_APERTURE = 24;
 
 // Clock and reset
 wire pcie_user_clk;
@@ -278,6 +283,55 @@ assign qsfp_i2c_sda = qsfp_i2c_sda_t ? 1'bz : qsfp_i2c_sda_o;
 assign eeprom_i2c_scl = eeprom_i2c_scl_t ? 1'bz : eeprom_i2c_scl_o;
 assign eeprom_i2c_sda = eeprom_i2c_sda_t ? 1'bz : eeprom_i2c_sda_o;
 
+// Flash
+wire qspi_clk_int;
+wire [3:0] qspi_0_dq_int;
+wire [3:0] qspi_0_dq_i_int;
+wire [3:0] qspi_0_dq_o_int;
+wire [3:0] qspi_0_dq_oe_int;
+wire qspi_0_cs_int;
+wire [3:0] qspi_1_dq_i_int;
+wire [3:0] qspi_1_dq_o_int;
+wire [3:0] qspi_1_dq_oe_int;
+wire qspi_1_cs_int;
+
+assign qspi_1_dq[0] = qspi_1_dq_oe_int[0] ? qspi_1_dq_o_int[0] : 1'bz;
+assign qspi_1_dq[1] = qspi_1_dq_oe_int[1] ? qspi_1_dq_o_int[1] : 1'bz;
+assign qspi_1_dq[2] = qspi_1_dq_oe_int[2] ? qspi_1_dq_o_int[2] : 1'bz;
+assign qspi_1_dq[3] = qspi_1_dq_oe_int[3] ? qspi_1_dq_o_int[3] : 1'bz;
+assign qspi_1_cs = qspi_1_cs_int;
+
+sync_signal #(
+    .WIDTH(8),
+    .N(2)
+)
+flash_sync_signal_inst (
+    .clk(pcie_user_clk),
+    .in({qspi_1_dq, qspi_0_dq_int}),
+    .out({qspi_1_dq_i_int, qspi_0_dq_i_int})
+);
+
+STARTUPE3
+startupe3_inst (
+    .CFGCLK(),
+    .CFGMCLK(),
+    .DI(qspi_0_dq_int),
+    .DO(qspi_0_dq_o_int),
+    .DTS(~qspi_0_dq_oe_int),
+    .EOS(),
+    .FCSBO(qspi_0_cs_int),
+    .FCSBTS(1'b0),
+    .GSR(1'b0),
+    .GTS(1'b0),
+    .KEYCLEARB(1'b1),
+    .PACK(1'b0),
+    .PREQ(),
+    .USRCCLKO(qspi_clk_int),
+    .USRCCLKTS(1'b0),
+    .USRDONEO(1'b0),
+    .USRDONETS(1'b1)
+);
+
 // PCIe
 wire pcie_sys_clk;
 wire pcie_sys_clk_gt;
@@ -321,6 +375,11 @@ wire                               axis_cc_tready;
 wire [AXIS_PCIE_CC_USER_WIDTH-1:0] axis_cc_tuser;
 wire                               axis_cc_tvalid;
 
+wire [RQ_SEQ_NUM_WIDTH-1:0]        pcie_rq_seq_num0;
+wire                               pcie_rq_seq_num_vld0;
+wire [RQ_SEQ_NUM_WIDTH-1:0]        pcie_rq_seq_num1;
+wire                               pcie_rq_seq_num_vld1;
+
 wire [3:0] pcie_tfc_nph_av;
 wire [3:0] pcie_tfc_npd_av;
 
@@ -335,6 +394,14 @@ wire [3:0]  cfg_mgmt_byte_enable;
 wire        cfg_mgmt_read;
 wire [31:0] cfg_mgmt_read_data;
 wire        cfg_mgmt_read_write_done;
+
+wire [7:0]  cfg_fc_ph;
+wire [11:0] cfg_fc_pd;
+wire [7:0]  cfg_fc_nph;
+wire [11:0] cfg_fc_npd;
+wire [7:0]  cfg_fc_cplh;
+wire [11:0] cfg_fc_cpld;
+wire [2:0]  cfg_fc_sel;
 
 wire [3:0]  cfg_interrupt_msi_enable;
 wire [11:0] cfg_interrupt_msi_mmenable;
@@ -422,10 +489,10 @@ pcie4_uscale_plus_inst (
     .s_axis_cc_tuser(axis_cc_tuser),
     .s_axis_cc_tvalid(axis_cc_tvalid),
 
-    .pcie_rq_seq_num0(),
-    .pcie_rq_seq_num_vld0(),
-    .pcie_rq_seq_num1(),
-    .pcie_rq_seq_num_vld1(),
+    .pcie_rq_seq_num0(pcie_rq_seq_num0),
+    .pcie_rq_seq_num_vld0(pcie_rq_seq_num_vld0),
+    .pcie_rq_seq_num1(pcie_rq_seq_num1),
+    .pcie_rq_seq_num_vld1(pcie_rq_seq_num_vld1),
     .pcie_rq_tag0(),
     .pcie_rq_tag1(),
     .pcie_rq_tag_av(),
@@ -484,13 +551,13 @@ pcie4_uscale_plus_inst (
     .cfg_msg_transmit_data(32'd0),
     .cfg_msg_transmit_done(),
 
-    .cfg_fc_ph(),
-    .cfg_fc_pd(),
-    .cfg_fc_nph(),
-    .cfg_fc_npd(),
-    .cfg_fc_cplh(),
-    .cfg_fc_cpld(),
-    .cfg_fc_sel(3'd0),
+    .cfg_fc_ph(cfg_fc_ph),
+    .cfg_fc_pd(cfg_fc_pd),
+    .cfg_fc_nph(cfg_fc_nph),
+    .cfg_fc_npd(cfg_fc_npd),
+    .cfg_fc_cplh(cfg_fc_cplh),
+    .cfg_fc_cpld(cfg_fc_cpld),
+    .cfg_fc_sel(cfg_fc_sel),
 
     .cfg_dsn(64'd0),
 
@@ -1195,7 +1262,9 @@ fpga_core #(
     .AXIS_PCIE_RC_USER_WIDTH(AXIS_PCIE_RC_USER_WIDTH),
     .AXIS_PCIE_RQ_USER_WIDTH(AXIS_PCIE_RQ_USER_WIDTH),
     .AXIS_PCIE_CQ_USER_WIDTH(AXIS_PCIE_CQ_USER_WIDTH),
-    .AXIS_PCIE_CC_USER_WIDTH(AXIS_PCIE_CC_USER_WIDTH)
+    .AXIS_PCIE_CC_USER_WIDTH(AXIS_PCIE_CC_USER_WIDTH),
+    .RQ_SEQ_NUM_WIDTH(RQ_SEQ_NUM_WIDTH),
+    .BAR0_APERTURE(BAR0_APERTURE)
 )
 core_inst (
     /*
@@ -1246,6 +1315,11 @@ core_inst (
     .m_axis_cc_tuser(axis_cc_tuser),
     .m_axis_cc_tvalid(axis_cc_tvalid),
 
+    .s_axis_rq_seq_num_0(pcie_rq_seq_num0),
+    .s_axis_rq_seq_num_valid_0(pcie_rq_seq_num_vld0),
+    .s_axis_rq_seq_num_1(pcie_rq_seq_num1),
+    .s_axis_rq_seq_num_valid_1(pcie_rq_seq_num_vld1),
+
     .pcie_tfc_nph_av(pcie_tfc_nph_av),
     .pcie_tfc_npd_av(pcie_tfc_npd_av),
 
@@ -1260,6 +1334,14 @@ core_inst (
     .cfg_mgmt_read(cfg_mgmt_read),
     .cfg_mgmt_read_data(cfg_mgmt_read_data),
     .cfg_mgmt_read_write_done(cfg_mgmt_read_write_done),
+
+    .cfg_fc_ph(cfg_fc_ph),
+    .cfg_fc_pd(cfg_fc_pd),
+    .cfg_fc_nph(cfg_fc_nph),
+    .cfg_fc_npd(cfg_fc_npd),
+    .cfg_fc_cplh(cfg_fc_cplh),
+    .cfg_fc_cpld(cfg_fc_cpld),
+    .cfg_fc_sel(cfg_fc_sel),
 
     .cfg_interrupt_msi_enable(cfg_interrupt_msi_enable),
     .cfg_interrupt_msi_mmenable(cfg_interrupt_msi_mmenable),
@@ -1390,7 +1472,20 @@ core_inst (
     .eeprom_i2c_sda_i(eeprom_i2c_sda_i),
     .eeprom_i2c_sda_o(eeprom_i2c_sda_o),
     .eeprom_i2c_sda_t(eeprom_i2c_sda_t),
-    .eeprom_wp(eeprom_wp)
+    .eeprom_wp(eeprom_wp),
+
+    /*
+     * QSPI flash
+     */
+    .qspi_clk(qspi_clk_int),
+    .qspi_0_dq_i(qspi_0_dq_i_int),
+    .qspi_0_dq_o(qspi_0_dq_o_int),
+    .qspi_0_dq_oe(qspi_0_dq_oe_int),
+    .qspi_0_cs(qspi_0_cs_int),
+    .qspi_1_dq_i(qspi_1_dq_i_int),
+    .qspi_1_dq_o(qspi_1_dq_o_int),
+    .qspi_1_dq_oe(qspi_1_dq_oe_int),
+    .qspi_1_cs(qspi_1_cs_int)
 );
 
 endmodule

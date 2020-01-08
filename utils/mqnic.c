@@ -72,6 +72,13 @@ struct mqnic *mqnic_open(const char *dev_name)
         goto fail_mmap_regs;
     }
 
+    if (mqnic_reg_read32(dev->regs, MQNIC_REG_FW_ID) == 0xffffffff)
+    {
+        fprintf(stderr, "Error: device needs to be reset\n");
+        munmap((void *)dev->regs, dev->regs_size);
+        goto fail_mmap_regs;
+    }
+
     dev->fw_id = mqnic_reg_read32(dev->regs, MQNIC_REG_FW_ID);
     dev->fw_ver = mqnic_reg_read32(dev->regs, MQNIC_REG_FW_VER);
     dev->board_id = mqnic_reg_read32(dev->regs, MQNIC_REG_BOARD_ID);
@@ -79,6 +86,7 @@ struct mqnic *mqnic_open(const char *dev_name)
 
     dev->phc_count = mqnic_reg_read32(dev->regs, MQNIC_REG_PHC_COUNT);
     dev->phc_offset = mqnic_reg_read32(dev->regs, MQNIC_REG_PHC_OFFSET);
+    dev->phc_stride = mqnic_reg_read32(dev->regs, MQNIC_REG_PHC_STRIDE);
 
     if (dev->phc_count)
     {
@@ -142,6 +150,14 @@ struct mqnic *mqnic_open(const char *dev_name)
             port->sched_offset = mqnic_reg_read32(port->regs, MQNIC_PORT_REG_SCHED_OFFSET);
             port->sched_stride = mqnic_reg_read32(port->regs, MQNIC_PORT_REG_SCHED_STRIDE);
             port->sched_type = mqnic_reg_read32(port->regs, MQNIC_PORT_REG_SCHED_TYPE);
+
+            port->tdma_timeslot_count = mqnic_reg_read32(port->regs, MQNIC_PORT_REG_TDMA_TIMESLOT_COUNT);
+
+            for (int m = 0; m < port->sched_count; m++)
+            {
+                struct mqnic_sched *sched = &port->sched[m];
+                sched->regs = port->regs + port->sched_offset + port->sched_stride*m;
+            }
         }
     }
 
@@ -158,6 +174,9 @@ fail_alloc:
 
 void mqnic_close(struct mqnic *dev)
 {
+    if (!dev)
+        return;
+
     munmap((void *)dev->regs, dev->regs_size);
     close(dev->fd);
     free(dev);

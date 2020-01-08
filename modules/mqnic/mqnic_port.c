@@ -37,7 +37,6 @@ int mqnic_create_port(struct mqnic_priv *priv, struct mqnic_port **port_ptr, int
 {
     struct device *dev = priv->dev;
     struct mqnic_port *port;
-    int k;
 
     port = kzalloc(sizeof(*port), GFP_KERNEL);
     if (!port)
@@ -46,10 +45,14 @@ int mqnic_create_port(struct mqnic_priv *priv, struct mqnic_port **port_ptr, int
         return -ENOMEM;
     }
 
+    *port_ptr = port;
+
     port->dev = dev;
     port->ndev = priv->ndev;
 
     port->index = index;
+
+    port->tx_queue_count = priv->tx_queue_count;
 
     port->hw_addr = hw_addr;
 
@@ -58,6 +61,8 @@ int mqnic_create_port(struct mqnic_priv *priv, struct mqnic_port **port_ptr, int
     dev_info(dev, "Port ID: 0x%08x", port->port_id);
     port->port_features = ioread32(port->hw_addr+MQNIC_PORT_REG_PORT_FEATURES);
     dev_info(dev, "Port features: 0x%08x", port->port_features);
+    port->port_mtu = ioread32(port->hw_addr+MQNIC_PORT_REG_PORT_MTU);
+    dev_info(dev, "Port MTU: %d", port->port_mtu);
 
     port->sched_count = ioread32(port->hw_addr+MQNIC_PORT_REG_SCHED_COUNT);
     dev_info(dev, "Scheduler count: %d", port->sched_count);
@@ -68,47 +73,50 @@ int mqnic_create_port(struct mqnic_priv *priv, struct mqnic_port **port_ptr, int
     port->sched_type = ioread32(port->hw_addr+MQNIC_PORT_REG_SCHED_TYPE);
     dev_info(dev, "Scheduler type: 0x%08x", port->sched_type);
 
-    // disable schedulers
-    iowrite32(0, port->hw_addr+MQNIC_PORT_REG_SCHED_ENABLE);
-
-    // enable schedulers
-    iowrite32(0xffffffff, port->hw_addr+MQNIC_PORT_REG_SCHED_ENABLE);
-
-    for (k = 0; k < priv->tx_queue_count; k++)
-    {
-        iowrite32(1, port->hw_addr+port->sched_offset+k*4);
-    }
-
-    // scheduler queue enable
-    iowrite32(0xffffffff, port->hw_addr+port->sched_offset+0x0200);
-    // scheduler global enable
-    iowrite32(0xffffffff, port->hw_addr+port->sched_offset+0x0300);
+    mqnic_deactivate_port(port);
 
     return 0;
 }
 
 void mqnic_destroy_port(struct mqnic_priv *priv, struct mqnic_port **port_ptr)
 {
-    struct device *dev = priv->dev;
     struct mqnic_port *port = *port_ptr;
     *port_ptr = NULL;
 
-    mqnic_deactivate_port(priv, port);
+    mqnic_deactivate_port(port);
 
     kfree(port);
 }
 
-int mqnic_activate_port(struct mqnic_priv *priv, struct mqnic_port *port)
+int mqnic_activate_port(struct mqnic_port *port)
 {
+    int k;
+
     // enable schedulers
     iowrite32(0xffffffff, port->hw_addr+MQNIC_PORT_REG_SCHED_ENABLE);
+
+    // enable queues
+    for (k = 0; k < port->tx_queue_count; k++)
+    {
+        iowrite32(3, port->hw_addr+port->sched_offset+k*4);
+    }
 
     return 0;
 }
 
-void mqnic_deactivate_port(struct mqnic_priv *priv, struct mqnic_port *port)
+void mqnic_deactivate_port(struct mqnic_port *port)
 {
     // disable schedulers
     iowrite32(0, port->hw_addr+MQNIC_PORT_REG_SCHED_ENABLE);
+}
+
+u32 mqnic_port_get_rss_mask(struct mqnic_port *port)
+{
+    return ioread32(port->hw_addr+MQNIC_PORT_REG_RSS_MASK);
+}
+
+void mqnic_port_set_rss_mask(struct mqnic_port *port, u32 rss_mask)
+{
+    iowrite32(rss_mask, port->hw_addr+MQNIC_PORT_REG_RSS_MASK);
 }
 

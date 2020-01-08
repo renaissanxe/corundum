@@ -47,6 +47,8 @@ parameter AXIS_PCIE_RC_USER_WIDTH = 75;
 parameter AXIS_PCIE_RQ_USER_WIDTH = 60;
 parameter AXIS_PCIE_CQ_USER_WIDTH = 85;
 parameter AXIS_PCIE_CC_USER_WIDTH = 33;
+parameter RQ_SEQ_NUM_WIDTH = 4;
+parameter BAR0_APERTURE = 24;
 
 // Inputs
 reg clk = 0;
@@ -77,12 +79,20 @@ reg s_axis_cq_tlast = 0;
 reg [AXIS_PCIE_CQ_USER_WIDTH-1:0] s_axis_cq_tuser = 0;
 reg s_axis_cq_tvalid = 0;
 reg m_axis_cc_tready = 0;
+reg [RQ_SEQ_NUM_WIDTH-1:0] s_axis_rq_seq_num = 0;
+reg s_axis_rq_seq_num_valid = 0;
 reg [1:0] pcie_tfc_nph_av = 0;
 reg [1:0] pcie_tfc_npd_av = 0;
 reg [2:0] cfg_max_payload = 0;
 reg [2:0] cfg_max_read_req = 0;
 reg [31:0] cfg_mgmt_read_data = 0;
 reg cfg_mgmt_read_write_done = 0;
+reg [7:0] cfg_fc_ph = 0;
+reg [11:0] cfg_fc_pd = 0;
+reg [7:0] cfg_fc_nph = 0;
+reg [11:0] cfg_fc_npd = 0;
+reg [7:0] cfg_fc_cplh = 0;
+reg [11:0] cfg_fc_cpld = 0;
 reg [3:0] cfg_interrupt_msi_enable = 0;
 reg [7:0] cfg_interrupt_msi_vf_enable = 0;
 reg [11:0] cfg_interrupt_msi_mmenable = 0;
@@ -141,6 +151,7 @@ wire cfg_mgmt_write;
 wire [31:0] cfg_mgmt_write_data;
 wire [3:0] cfg_mgmt_byte_enable;
 wire cfg_mgmt_read;
+wire [2:0] cfg_fc_sel;
 wire [3:0] cfg_interrupt_msi_select;
 wire [31:0] cfg_interrupt_msi_int;
 wire [31:0] cfg_interrupt_msi_pending_status;
@@ -202,12 +213,20 @@ initial begin
         s_axis_cq_tuser,
         s_axis_cq_tvalid,
         m_axis_cc_tready,
+        s_axis_rq_seq_num,
+        s_axis_rq_seq_num_valid,
         pcie_tfc_nph_av,
         pcie_tfc_npd_av,
         cfg_max_payload,
         cfg_max_read_req,
         cfg_mgmt_read_data,
         cfg_mgmt_read_write_done,
+        cfg_fc_ph,
+        cfg_fc_pd,
+        cfg_fc_nph,
+        cfg_fc_npd,
+        cfg_fc_cplh,
+        cfg_fc_cpld,
         cfg_interrupt_msi_enable,
         cfg_interrupt_msi_vf_enable,
         cfg_interrupt_msi_mmenable,
@@ -266,6 +285,7 @@ initial begin
         cfg_mgmt_write_data,
         cfg_mgmt_byte_enable,
         cfg_mgmt_read,
+        cfg_fc_sel,
         cfg_interrupt_msi_select,
         cfg_interrupt_msi_int,
         cfg_interrupt_msi_pending_status,
@@ -311,7 +331,9 @@ fpga_core #(
     .AXIS_PCIE_RC_USER_WIDTH(AXIS_PCIE_RC_USER_WIDTH),
     .AXIS_PCIE_RQ_USER_WIDTH(AXIS_PCIE_RQ_USER_WIDTH),
     .AXIS_PCIE_CQ_USER_WIDTH(AXIS_PCIE_CQ_USER_WIDTH),
-    .AXIS_PCIE_CC_USER_WIDTH(AXIS_PCIE_CC_USER_WIDTH)
+    .AXIS_PCIE_CC_USER_WIDTH(AXIS_PCIE_CC_USER_WIDTH),
+    .RQ_SEQ_NUM_WIDTH(RQ_SEQ_NUM_WIDTH),
+    .BAR0_APERTURE(BAR0_APERTURE)
 )
 UUT (
     .clk_156mhz(clk_156mhz),
@@ -355,6 +377,8 @@ UUT (
     .m_axis_cc_tready(m_axis_cc_tready),
     .m_axis_cc_tuser(m_axis_cc_tuser),
     .m_axis_cc_tvalid(m_axis_cc_tvalid),
+    .s_axis_rq_seq_num(s_axis_rq_seq_num),
+    .s_axis_rq_seq_num_valid(s_axis_rq_seq_num_valid),
     .pcie_tfc_nph_av(pcie_tfc_nph_av),
     .pcie_tfc_npd_av(pcie_tfc_npd_av),
     .cfg_max_payload(cfg_max_payload),
@@ -366,6 +390,13 @@ UUT (
     .cfg_mgmt_read(cfg_mgmt_read),
     .cfg_mgmt_read_data(cfg_mgmt_read_data),
     .cfg_mgmt_read_write_done(cfg_mgmt_read_write_done),
+    .cfg_fc_ph(cfg_fc_ph),
+    .cfg_fc_pd(cfg_fc_pd),
+    .cfg_fc_nph(cfg_fc_nph),
+    .cfg_fc_npd(cfg_fc_npd),
+    .cfg_fc_cplh(cfg_fc_cplh),
+    .cfg_fc_cpld(cfg_fc_cpld),
+    .cfg_fc_sel(cfg_fc_sel),
     .cfg_interrupt_msi_enable(cfg_interrupt_msi_enable),
     .cfg_interrupt_msi_vf_enable(cfg_interrupt_msi_vf_enable),
     .cfg_interrupt_msi_mmenable(cfg_interrupt_msi_mmenable),
