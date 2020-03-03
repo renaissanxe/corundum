@@ -55,23 +55,14 @@ module fpga_core #
      * Clock: 156.25 MHz, 250 MHz
      * Synchronous reset
      */
-    input  wire                               clk_156mhz,
-    input  wire                               rst_156mhz,
     input  wire                               clk_250mhz,
     input  wire                               rst_250mhz,
 
     /*
      * GPIO
      */
-    input  wire                               btnu,
-    input  wire                               btnl,
-    input  wire                               btnd,
-    input  wire                               btnr,
-    input  wire                               btnc,
     input  wire [3:0]                         sw,
-    output wire [7:0]                         led,
-    output wire [7:0]                         pmod0,
-    output wire [7:0]                         pmod1,
+    output wire [2:0]                         led,
 
     /*
      * I2C
@@ -165,6 +156,57 @@ module fpga_core #
     /*
      * Ethernet: QSFP28
      */
+    input  wire                               qsfp0_tx_clk_1,
+    input  wire                               qsfp0_tx_rst_1,
+    output wire [63:0]                        qsfp0_txd_1,
+    output wire [7:0]                         qsfp0_txc_1,
+    output wire                               qsfp0_tx_prbs31_enable_1,
+    input  wire                               qsfp0_rx_clk_1,
+    input  wire                               qsfp0_rx_rst_1,
+    input  wire [63:0]                        qsfp0_rxd_1,
+    input  wire [7:0]                         qsfp0_rxc_1,
+    output wire                               qsfp0_rx_prbs31_enable_1,
+    input  wire [6:0]                         qsfp0_rx_error_count_1,
+    input  wire                               qsfp0_tx_clk_2,
+    input  wire                               qsfp0_tx_rst_2,
+    output wire [63:0]                        qsfp0_txd_2,
+    output wire [7:0]                         qsfp0_txc_2,
+    output wire                               qsfp0_tx_prbs31_enable_2,
+    input  wire                               qsfp0_rx_clk_2,
+    input  wire                               qsfp0_rx_rst_2,
+    input  wire [63:0]                        qsfp0_rxd_2,
+    input  wire [7:0]                         qsfp0_rxc_2,
+    output wire                               qsfp0_rx_prbs31_enable_2,
+    input  wire [6:0]                         qsfp0_rx_error_count_2,
+    input  wire                               qsfp0_tx_clk_3,
+    input  wire                               qsfp0_tx_rst_3,
+    output wire [63:0]                        qsfp0_txd_3,
+    output wire [7:0]                         qsfp0_txc_3,
+    output wire                               qsfp0_tx_prbs31_enable_3,
+    input  wire                               qsfp0_rx_clk_3,
+    input  wire                               qsfp0_rx_rst_3,
+    input  wire [63:0]                        qsfp0_rxd_3,
+    input  wire [7:0]                         qsfp0_rxc_3,
+    output wire                               qsfp0_rx_prbs31_enable_3,
+    input  wire [6:0]                         qsfp0_rx_error_count_3,
+    input  wire                               qsfp0_tx_clk_4,
+    input  wire                               qsfp0_tx_rst_4,
+    output wire [63:0]                        qsfp0_txd_4,
+    output wire [7:0]                         qsfp0_txc_4,
+    output wire                               qsfp0_tx_prbs31_enable_4,
+    input  wire                               qsfp0_rx_clk_4,
+    input  wire                               qsfp0_rx_rst_4,
+    input  wire [63:0]                        qsfp0_rxd_4,
+    input  wire [7:0]                         qsfp0_rxc_4,
+    output wire                               qsfp0_rx_prbs31_enable_4,
+    input  wire [6:0]                         qsfp0_rx_error_count_4,
+
+    output wire                               qsfp0_modsell,
+    output wire                               qsfp0_resetl,
+    input  wire                               qsfp0_modprsl,
+    input  wire                               qsfp0_intl,
+    output wire                               qsfp0_lpmode,
+
     input  wire                               qsfp1_tx_clk_1,
     input  wire                               qsfp1_tx_rst_1,
     output wire [63:0]                        qsfp1_txd_1,
@@ -214,58 +256,7 @@ module fpga_core #
     output wire                               qsfp1_resetl,
     input  wire                               qsfp1_modprsl,
     input  wire                               qsfp1_intl,
-    output wire                               qsfp1_lpmode,
-
-    input  wire                               qsfp2_tx_clk_1,
-    input  wire                               qsfp2_tx_rst_1,
-    output wire [63:0]                        qsfp2_txd_1,
-    output wire [7:0]                         qsfp2_txc_1,
-    output wire                               qsfp2_tx_prbs31_enable_1,
-    input  wire                               qsfp2_rx_clk_1,
-    input  wire                               qsfp2_rx_rst_1,
-    input  wire [63:0]                        qsfp2_rxd_1,
-    input  wire [7:0]                         qsfp2_rxc_1,
-    output wire                               qsfp2_rx_prbs31_enable_1,
-    input  wire [6:0]                         qsfp2_rx_error_count_1,
-    input  wire                               qsfp2_tx_clk_2,
-    input  wire                               qsfp2_tx_rst_2,
-    output wire [63:0]                        qsfp2_txd_2,
-    output wire [7:0]                         qsfp2_txc_2,
-    output wire                               qsfp2_tx_prbs31_enable_2,
-    input  wire                               qsfp2_rx_clk_2,
-    input  wire                               qsfp2_rx_rst_2,
-    input  wire [63:0]                        qsfp2_rxd_2,
-    input  wire [7:0]                         qsfp2_rxc_2,
-    output wire                               qsfp2_rx_prbs31_enable_2,
-    input  wire [6:0]                         qsfp2_rx_error_count_2,
-    input  wire                               qsfp2_tx_clk_3,
-    input  wire                               qsfp2_tx_rst_3,
-    output wire [63:0]                        qsfp2_txd_3,
-    output wire [7:0]                         qsfp2_txc_3,
-    output wire                               qsfp2_tx_prbs31_enable_3,
-    input  wire                               qsfp2_rx_clk_3,
-    input  wire                               qsfp2_rx_rst_3,
-    input  wire [63:0]                        qsfp2_rxd_3,
-    input  wire [7:0]                         qsfp2_rxc_3,
-    output wire                               qsfp2_rx_prbs31_enable_3,
-    input  wire [6:0]                         qsfp2_rx_error_count_3,
-    input  wire                               qsfp2_tx_clk_4,
-    input  wire                               qsfp2_tx_rst_4,
-    output wire [63:0]                        qsfp2_txd_4,
-    output wire [7:0]                         qsfp2_txc_4,
-    output wire                               qsfp2_tx_prbs31_enable_4,
-    input  wire                               qsfp2_rx_clk_4,
-    input  wire                               qsfp2_rx_rst_4,
-    input  wire [63:0]                        qsfp2_rxd_4,
-    input  wire [7:0]                         qsfp2_rxc_4,
-    output wire                               qsfp2_rx_prbs31_enable_4,
-    input  wire [6:0]                         qsfp2_rx_error_count_4,
-
-    output wire                               qsfp2_modsell,
-    output wire                               qsfp2_resetl,
-    input  wire                               qsfp2_modprsl,
-    input  wire                               qsfp2_intl,
-    output wire                               qsfp2_lpmode
+    output wire                               qsfp1_lpmode
 );
 
 // PHC parameters
@@ -278,7 +269,7 @@ parameter PTP_PERIOD_FNS = 32'd0;
 // FW and board IDs
 parameter FW_ID = 32'd0;
 parameter FW_VER = {16'd0, 16'd1};
-parameter BOARD_ID = {16'h10ee, 16'h9076};
+parameter BOARD_ID = {16'h10ee, 16'h95f5};
 parameter BOARD_VER = {16'd0, 16'd1};
 parameter FPGA_ID = 32'h4B31093;
 
@@ -294,7 +285,7 @@ parameter TX_QUEUE_OP_TABLE_SIZE = 32;
 parameter RX_QUEUE_OP_TABLE_SIZE = 32;
 parameter TX_CPL_QUEUE_OP_TABLE_SIZE = TX_QUEUE_OP_TABLE_SIZE;
 parameter RX_CPL_QUEUE_OP_TABLE_SIZE = RX_QUEUE_OP_TABLE_SIZE;
-parameter TX_QUEUE_INDEX_WIDTH = 8;
+parameter TX_QUEUE_INDEX_WIDTH = 13;
 parameter RX_QUEUE_INDEX_WIDTH = 8;
 parameter TX_CPL_QUEUE_INDEX_WIDTH = TX_QUEUE_INDEX_WIDTH;
 parameter RX_CPL_QUEUE_INDEX_WIDTH = RX_QUEUE_INDEX_WIDTH;
@@ -311,7 +302,7 @@ parameter RX_DESC_TABLE_SIZE = 32;
 parameter RX_PKT_TABLE_SIZE = 8;
 
 // Scheduler parameters (port)
-parameter TX_SCHEDULER = "TDMA_RR";
+parameter TX_SCHEDULER = "RR";
 parameter TX_SCHEDULER_OP_TABLE_SIZE = TX_DESC_TABLE_SIZE;
 parameter TX_SCHEDULER_PIPELINE = TX_QUEUE_PIPELINE;
 parameter TDMA_INDEX_WIDTH = 6;
@@ -486,11 +477,6 @@ wire [95:0] ptp_ts_96;
 wire ptp_ts_step;
 wire ptp_pps;
 
-reg ptp_perout_enable_reg = 1'b0;
-wire ptp_perout_locked;
-wire ptp_perout_error;
-wire ptp_perout_pulse;
-
 // control registers
 reg axil_csr_awready_reg = 1'b0;
 reg axil_csr_wready_reg = 1'b0;
@@ -499,14 +485,14 @@ reg axil_csr_arready_reg = 1'b0;
 reg [AXIL_DATA_WIDTH-1:0] axil_csr_rdata_reg = {AXIL_DATA_WIDTH{1'b0}};
 reg axil_csr_rvalid_reg = 1'b0;
 
+reg qsfp0_modsell_reg = 1'b0;
 reg qsfp1_modsell_reg = 1'b0;
-reg qsfp2_modsell_reg = 1'b0;
 
+reg qsfp0_lpmode_reg = 1'b0;
 reg qsfp1_lpmode_reg = 1'b0;
-reg qsfp2_lpmode_reg = 1'b0;
 
+reg qsfp0_resetl_reg = 1'b1;
 reg qsfp1_resetl_reg = 1'b1;
-reg qsfp2_resetl_reg = 1'b1;
 
 reg i2c_scl_o_reg = 1'b1;
 reg i2c_sda_o_reg = 1'b1;
@@ -525,13 +511,6 @@ reg [15:0] set_ptp_offset_count_reg = 0;
 reg set_ptp_offset_valid_reg = 0;
 wire set_ptp_offset_active;
 
-reg [95:0] set_ptp_perout_start_ts_96_reg = 0;
-reg set_ptp_perout_start_ts_96_valid_reg = 0;
-reg [95:0] set_ptp_perout_period_ts_96_reg = 0;
-reg set_ptp_perout_period_ts_96_valid_reg = 0;
-reg [95:0] set_ptp_perout_width_ts_96_reg = 0;
-reg set_ptp_perout_width_ts_96_valid_reg = 0;
-
 assign axil_csr_awready = axil_csr_awready_reg;
 assign axil_csr_wready = axil_csr_wready_reg;
 assign axil_csr_bresp = 2'b00;
@@ -541,14 +520,14 @@ assign axil_csr_rdata = axil_csr_rdata_reg;
 assign axil_csr_rresp = 2'b00;
 assign axil_csr_rvalid = axil_csr_rvalid_reg;
 
+assign qsfp0_modsell = qsfp0_modsell_reg;
 assign qsfp1_modsell = qsfp1_modsell_reg;
-assign qsfp2_modsell = qsfp2_modsell_reg;
 
+assign qsfp0_lpmode = qsfp0_lpmode_reg;
 assign qsfp1_lpmode = qsfp1_lpmode_reg;
-assign qsfp2_lpmode = qsfp2_lpmode_reg;
 
+assign qsfp0_resetl = qsfp0_resetl_reg;
 assign qsfp1_resetl = qsfp1_resetl_reg;
-assign qsfp2_resetl = qsfp2_resetl_reg;
 
 assign i2c_scl_o = i2c_scl_o_reg;
 assign i2c_scl_t = i2c_scl_o_reg;
@@ -570,10 +549,6 @@ always @(posedge clk_250mhz) begin
     set_ptp_period_valid_reg <= 1'b0;
     set_ptp_offset_valid_reg <= 1'b0;
 
-    set_ptp_perout_start_ts_96_valid_reg <= 1'b0;
-    set_ptp_perout_period_ts_96_valid_reg <= 1'b0;
-    set_ptp_perout_width_ts_96_valid_reg <= 1'b0;
-
     if (axil_csr_awvalid && axil_csr_wvalid && !axil_csr_bvalid) begin
         // write operation
         axil_csr_awready_reg <= 1'b1;
@@ -585,14 +560,14 @@ always @(posedge clk_250mhz) begin
             16'h0100: begin
                 // GPIO out
                 if (axil_csr_wstrb[1]) begin
-                    qsfp1_modsell_reg <= axil_csr_wdata[9];
-                    qsfp2_modsell_reg <= axil_csr_wdata[11];
+                    qsfp0_modsell_reg <= axil_csr_wdata[9];
+                    qsfp1_modsell_reg <= axil_csr_wdata[11];
                 end
                 if (axil_csr_wstrb[0]) begin
-                    qsfp1_resetl_reg <= axil_csr_wdata[0];
-                    qsfp1_lpmode_reg <= axil_csr_wdata[2];
-                    qsfp2_resetl_reg <= axil_csr_wdata[4];
-                    qsfp2_lpmode_reg <= axil_csr_wdata[6];
+                    qsfp0_resetl_reg <= axil_csr_wdata[0];
+                    qsfp0_lpmode_reg <= axil_csr_wdata[2];
+                    qsfp1_resetl_reg <= axil_csr_wdata[4];
+                    qsfp1_lpmode_reg <= axil_csr_wdata[6];
                 end
                 if (axil_csr_wstrb[2]) begin
                     i2c_scl_o_reg <= axil_csr_wdata[16];
@@ -621,34 +596,6 @@ always @(posedge clk_250mhz) begin
                 set_ptp_offset_count_reg <= axil_csr_wdata;
                 set_ptp_offset_valid_reg <= 1'b1;
             end
-            16'h0260: begin
-                // PTP perout control
-                ptp_perout_enable_reg <= axil_csr_wdata[0];
-            end
-            16'h0270: set_ptp_perout_start_ts_96_reg[15:0] <= axil_csr_wdata;  // PTP perout start fns
-            16'h0274: set_ptp_perout_start_ts_96_reg[45:16] <= axil_csr_wdata; // PTP perout start ns
-            16'h0278: set_ptp_perout_start_ts_96_reg[79:48] <= axil_csr_wdata; // PTP perout start sec l
-            16'h027C: begin
-                // PTP perout start sec h
-                set_ptp_perout_start_ts_96_reg[95:80] <= axil_csr_wdata;
-                set_ptp_perout_start_ts_96_valid_reg <= 1'b1;
-            end
-            16'h0280: set_ptp_perout_period_ts_96_reg[15:0] <= axil_csr_wdata;  // PTP perout period fns
-            16'h0284: set_ptp_perout_period_ts_96_reg[45:16] <= axil_csr_wdata; // PTP perout period ns
-            16'h0288: set_ptp_perout_period_ts_96_reg[79:48] <= axil_csr_wdata; // PTP perout period sec l
-            16'h028C: begin
-                // PTP perout period sec h
-                set_ptp_perout_period_ts_96_reg[95:80] <= axil_csr_wdata;
-                set_ptp_perout_period_ts_96_valid_reg <= 1'b1;
-            end
-            16'h0290: set_ptp_perout_width_ts_96_reg[15:0] <= axil_csr_wdata;  // PTP perout width fns
-            16'h0294: set_ptp_perout_width_ts_96_reg[45:16] <= axil_csr_wdata; // PTP perout width ns
-            16'h0298: set_ptp_perout_width_ts_96_reg[79:48] <= axil_csr_wdata; // PTP perout width sec l
-            16'h029C: begin
-                // PTP perout width sec h
-                set_ptp_perout_width_ts_96_reg[95:80] <= axil_csr_wdata;
-                set_ptp_perout_width_ts_96_valid_reg <= 1'b1;
-            end
         endcase
     end
 
@@ -673,32 +620,32 @@ always @(posedge clk_250mhz) begin
             // GPIO
             16'h0100: begin
                 // GPIO out
-                axil_csr_rdata_reg[9] <= qsfp1_modsell_reg;
-                axil_csr_rdata_reg[11] <= qsfp2_modsell_reg;
-                axil_csr_rdata_reg[0] <= qsfp1_resetl_reg;
-                axil_csr_rdata_reg[2] <= qsfp1_lpmode_reg;
-                axil_csr_rdata_reg[4] <= qsfp2_resetl_reg;
-                axil_csr_rdata_reg[6] <= qsfp2_lpmode_reg;
+                axil_csr_rdata_reg[9] <= qsfp0_modsell_reg;
+                axil_csr_rdata_reg[11] <= qsfp1_modsell_reg;
+                axil_csr_rdata_reg[0] <= qsfp0_resetl_reg;
+                axil_csr_rdata_reg[2] <= qsfp0_lpmode_reg;
+                axil_csr_rdata_reg[4] <= qsfp1_resetl_reg;
+                axil_csr_rdata_reg[6] <= qsfp1_lpmode_reg;
                 axil_csr_rdata_reg[16] <= i2c_scl_o_reg;
                 axil_csr_rdata_reg[17] <= i2c_sda_o_reg;
             end
             16'h0104: begin
                 // GPIO in
-                axil_csr_rdata_reg[8] <= qsfp1_modprsl;
-                axil_csr_rdata_reg[9] <= qsfp1_modsell;
-                axil_csr_rdata_reg[10] <= qsfp2_modprsl;
-                axil_csr_rdata_reg[11] <= qsfp2_modsell;
-                axil_csr_rdata_reg[0] <= qsfp1_resetl;
-                axil_csr_rdata_reg[1] <= qsfp1_intl;
-                axil_csr_rdata_reg[2] <= qsfp1_lpmode;
-                axil_csr_rdata_reg[4] <= qsfp2_resetl;
-                axil_csr_rdata_reg[5] <= qsfp2_intl;
-                axil_csr_rdata_reg[6] <= qsfp2_lpmode;
+                axil_csr_rdata_reg[8] <= qsfp0_modprsl;
+                axil_csr_rdata_reg[9] <= qsfp0_modsell;
+                axil_csr_rdata_reg[10] <= qsfp1_modprsl;
+                axil_csr_rdata_reg[11] <= qsfp1_modsell;
+                axil_csr_rdata_reg[0] <= qsfp0_resetl;
+                axil_csr_rdata_reg[1] <= qsfp0_intl;
+                axil_csr_rdata_reg[2] <= qsfp0_lpmode;
+                axil_csr_rdata_reg[4] <= qsfp1_resetl;
+                axil_csr_rdata_reg[5] <= qsfp1_intl;
+                axil_csr_rdata_reg[6] <= qsfp1_lpmode;
                 axil_csr_rdata_reg[16] <= i2c_scl_i;
                 axil_csr_rdata_reg[17] <= i2c_sda_i;
             end
             // PHC
-            16'h0200: axil_csr_rdata_reg <= {8'd0, 8'd0, 8'd0, 8'd1};  // PHC features
+            16'h0200: axil_csr_rdata_reg <= {8'd0, 8'd0, 8'd0, 8'd0};  // PHC features
             16'h0210: axil_csr_rdata_reg <= ptp_ts_96[15:0];  // PTP cur fns
             16'h0214: axil_csr_rdata_reg <= ptp_ts_96[45:16]; // PTP cur ns
             16'h0218: axil_csr_rdata_reg <= ptp_ts_96[79:48]; // PTP cur sec l
@@ -723,27 +670,6 @@ always @(posedge clk_250mhz) begin
             16'h0254: axil_csr_rdata_reg <= set_ptp_offset_ns_reg;    // PTP offset ns
             16'h0258: axil_csr_rdata_reg <= set_ptp_offset_count_reg; // PTP offset count
             16'h025C: axil_csr_rdata_reg <= set_ptp_offset_active;    // PTP offset status
-            16'h0260: begin
-                // PTP perout control
-                axil_csr_rdata_reg[0] <= ptp_perout_enable_reg;
-            end
-            16'h0264: begin
-                // PTP perout status
-                axil_csr_rdata_reg[0] <= ptp_perout_locked;
-                axil_csr_rdata_reg[1] <= ptp_perout_error;
-            end
-            16'h0270: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[15:0];  // PTP perout start fns
-            16'h0274: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[45:16]; // PTP perout start ns
-            16'h0278: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[79:48]; // PTP perout start sec l
-            16'h027C: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[95:80]; // PTP perout start sec h
-            16'h0280: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[15:0];  // PTP perout period fns
-            16'h0284: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[45:16]; // PTP perout period ns
-            16'h0288: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[79:48]; // PTP perout period sec l
-            16'h028C: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[95:80]; // PTP perout period sec h
-            16'h0290: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[15:0];  // PTP perout width fns
-            16'h0294: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[45:16]; // PTP perout width ns
-            16'h0298: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[79:48]; // PTP perout width sec l
-            16'h029C: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[95:80]; // PTP perout width sec h
         endcase
     end
 
@@ -754,21 +680,19 @@ always @(posedge clk_250mhz) begin
         axil_csr_arready_reg <= 1'b0;
         axil_csr_rvalid_reg <= 1'b0;
 
+        qsfp0_modsell_reg <= 1'b1;
         qsfp1_modsell_reg <= 1'b1;
-        qsfp2_modsell_reg <= 1'b1;
 
+        qsfp0_lpmode_reg <= 1'b0;
         qsfp1_lpmode_reg <= 1'b0;
-        qsfp2_lpmode_reg <= 1'b0;
 
+        qsfp0_resetl_reg <= 1'b1;
         qsfp1_resetl_reg <= 1'b1;
-        qsfp2_resetl_reg <= 1'b1;
 
         i2c_scl_o_reg <= 1'b1;
         i2c_sda_o_reg <= 1'b1;
 
         pcie_dma_enable_reg <= 1'b0;
-
-        ptp_perout_enable_reg <= 1'b0;
     end
 end
 
@@ -1922,40 +1846,6 @@ always @(posedge clk_250mhz) begin
     pps_led_reg <= pps_led_counter_reg > 0;
 end
 
-ptp_perout #(
-    .FNS_ENABLE(0),
-    .OUT_START_S(0),
-    .OUT_START_NS(0),
-    .OUT_START_FNS(0),
-    .OUT_PERIOD_S(1),
-    .OUT_PERIOD_NS(0),
-    .OUT_PERIOD_FNS(0),
-    .OUT_WIDTH_S(0),
-    .OUT_WIDTH_NS(500000000),
-    .OUT_WIDTH_FNS(0)
-)
-ptp_perout_inst (
-    .clk(clk_250mhz),
-    .rst(rst_250mhz),
-    .input_ts_96(ptp_ts_96),
-    .input_ts_step(ptp_ts_step),
-    .enable(ptp_perout_enable_reg),
-    .input_start(set_ptp_perout_start_ts_96_reg),
-    .input_start_valid(set_ptp_perout_start_ts_96_valid_reg),
-    .input_period(set_ptp_perout_period_ts_96_reg),
-    .input_period_valid(set_ptp_perout_period_ts_96_valid_reg),
-    .input_width(set_ptp_perout_width_ts_96_reg),
-    .input_width_valid(set_ptp_perout_width_ts_96_valid_reg),
-    .locked(ptp_perout_locked),
-    .error(ptp_perout_error),
-    .output_pulse(ptp_perout_pulse)
-);
-
-assign pmod0[0] = ptp_perout_pulse;
-assign pmod0[7:1] = 0;
-assign pmod1[0] = ptp_perout_pulse;
-assign pmod1[7:1] = 0;
-
 // BER tester
 tdma_ber #(
     .COUNT(8),
@@ -1976,11 +1866,11 @@ tdma_ber #(
 tdma_ber_inst (
     .clk(clk_250mhz),
     .rst(rst_250mhz),
-    .phy_tx_clk({qsfp2_tx_clk_4, qsfp2_tx_clk_3, qsfp2_tx_clk_2, qsfp2_tx_clk_1, qsfp1_tx_clk_4, qsfp1_tx_clk_3, qsfp1_tx_clk_2, qsfp1_tx_clk_1}),
-    .phy_rx_clk({qsfp2_rx_clk_4, qsfp2_rx_clk_3, qsfp2_rx_clk_2, qsfp2_rx_clk_1, qsfp1_rx_clk_4, qsfp1_rx_clk_3, qsfp1_rx_clk_2, qsfp1_rx_clk_1}),
-    .phy_rx_error_count({qsfp2_rx_error_count_4, qsfp2_rx_error_count_3, qsfp2_rx_error_count_2, qsfp2_rx_error_count_1, qsfp1_rx_error_count_4, qsfp1_rx_error_count_3, qsfp1_rx_error_count_2, qsfp1_rx_error_count_1}),
-    .phy_tx_prbs31_enable({qsfp2_tx_prbs31_enable_4, qsfp2_tx_prbs31_enable_3, qsfp2_tx_prbs31_enable_2, qsfp2_tx_prbs31_enable_1, qsfp1_tx_prbs31_enable_4, qsfp1_tx_prbs31_enable_3, qsfp1_tx_prbs31_enable_2, qsfp1_tx_prbs31_enable_1}),
-    .phy_rx_prbs31_enable({qsfp2_rx_prbs31_enable_4, qsfp2_rx_prbs31_enable_3, qsfp2_rx_prbs31_enable_2, qsfp2_rx_prbs31_enable_1, qsfp1_rx_prbs31_enable_4, qsfp1_rx_prbs31_enable_3, qsfp1_rx_prbs31_enable_2, qsfp1_rx_prbs31_enable_1}),
+    .phy_tx_clk({qsfp1_tx_clk_4, qsfp1_tx_clk_3, qsfp1_tx_clk_2, qsfp1_tx_clk_1, qsfp0_tx_clk_4, qsfp0_tx_clk_3, qsfp0_tx_clk_2, qsfp0_tx_clk_1}),
+    .phy_rx_clk({qsfp1_rx_clk_4, qsfp1_rx_clk_3, qsfp1_rx_clk_2, qsfp1_rx_clk_1, qsfp0_rx_clk_4, qsfp0_rx_clk_3, qsfp0_rx_clk_2, qsfp0_rx_clk_1}),
+    .phy_rx_error_count({qsfp1_rx_error_count_4, qsfp1_rx_error_count_3, qsfp1_rx_error_count_2, qsfp1_rx_error_count_1, qsfp0_rx_error_count_4, qsfp0_rx_error_count_3, qsfp0_rx_error_count_2, qsfp0_rx_error_count_1}),
+    .phy_tx_prbs31_enable({qsfp1_tx_prbs31_enable_4, qsfp1_tx_prbs31_enable_3, qsfp1_tx_prbs31_enable_2, qsfp1_tx_prbs31_enable_1, qsfp0_tx_prbs31_enable_4, qsfp0_tx_prbs31_enable_3, qsfp0_tx_prbs31_enable_2, qsfp0_tx_prbs31_enable_1}),
+    .phy_rx_prbs31_enable({qsfp1_rx_prbs31_enable_4, qsfp1_rx_prbs31_enable_3, qsfp1_rx_prbs31_enable_2, qsfp1_rx_prbs31_enable_1, qsfp0_rx_prbs31_enable_4, qsfp0_rx_prbs31_enable_3, qsfp0_rx_prbs31_enable_2, qsfp0_rx_prbs31_enable_1}),
     .s_axil_awaddr(axil_ber_awaddr),
     .s_axil_awprot(axil_ber_awprot),
     .s_axil_awvalid(axil_ber_awvalid),
@@ -2014,12 +1904,12 @@ wire [PORT_COUNT*64-1:0] port_xgmii_rxd;
 wire [PORT_COUNT*8-1:0] port_xgmii_rxc;
 
 assign led[0] = pps_led_reg;
-assign led[7:1] = 0;
+assign led[2:1] = 0;
 
 wire [IF_COUNT*32-1:0] if_msi_irq;
 
-//  counts    QSFP 1                                QSFP 2
-// IF  PORT   1_1      1_2      1_3      1_4        2_1      2_2      2_3      2_4
+//  counts    QSFP 0                                QSFP 1
+// IF  PORT   0_1      0_2      0_3      0_4        1_1      1_2      1_3      1_4
 // 1   1      0 (0.0)
 // 1   2      0 (0.0)  1 (0.1)
 // 1   3      0 (0.0)  1 (0.1)  2 (0.2)
@@ -2041,17 +1931,77 @@ wire [IF_COUNT*32-1:0] if_msi_irq;
 // 7   1      0 (0.0)  1 (1.0)  2 (2.0)  3 (3.0)    4 (4.0)  5 (5.0)  6 (6.0)
 // 8   1      0 (0.0)  1 (1.0)  2 (2.0)  3 (3.0)    4 (4.0)  5 (5.0)  6 (6.0)  7 (7.0)
 
-localparam QSFP1_1_IND = 0;
-localparam QSFP1_2_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 1 ? 1 : -1) : 1;
-localparam QSFP1_3_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 2 ? 2 : -1) : 2;
-localparam QSFP1_4_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 3 ? 3 : -1) : 3;
-localparam QSFP2_1_IND = IF_COUNT == 2 ? PORTS_PER_IF : 4;
-localparam QSFP2_2_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 1 ? PORTS_PER_IF+1 : -1) : 5;
-localparam QSFP2_3_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 2 ? PORTS_PER_IF+2 : -1) : 6;
-localparam QSFP2_4_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 3 ? PORTS_PER_IF+3 : -1) : 7;
+localparam QSFP0_1_IND = 0;
+localparam QSFP0_2_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 1 ? 1 : -1) : 1;
+localparam QSFP0_3_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 2 ? 2 : -1) : 2;
+localparam QSFP0_4_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 3 ? 3 : -1) : 3;
+localparam QSFP1_1_IND = IF_COUNT == 2 ? PORTS_PER_IF : 4;
+localparam QSFP1_2_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 1 ? PORTS_PER_IF+1 : -1) : 5;
+localparam QSFP1_3_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 2 ? PORTS_PER_IF+2 : -1) : 6;
+localparam QSFP1_4_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 3 ? PORTS_PER_IF+3 : -1) : 7;
 
 generate
     genvar m, n;
+
+    if (QSFP0_1_IND >= 0 && QSFP0_1_IND < PORT_COUNT) begin
+        assign port_xgmii_tx_clk[QSFP0_1_IND] = qsfp0_tx_clk_1;
+        assign port_xgmii_tx_rst[QSFP0_1_IND] = qsfp0_tx_rst_1;
+        assign port_xgmii_rx_clk[QSFP0_1_IND] = qsfp0_rx_clk_1;
+        assign port_xgmii_rx_rst[QSFP0_1_IND] = qsfp0_rx_rst_1;
+        assign port_xgmii_rxd[QSFP0_1_IND*64 +: 64] = qsfp0_rxd_1;
+        assign port_xgmii_rxc[QSFP0_1_IND*8 +: 8] = qsfp0_rxc_1;
+
+        assign qsfp0_txd_1 = port_xgmii_txd[QSFP0_1_IND*64 +: 64];
+        assign qsfp0_txc_1 = port_xgmii_txc[QSFP0_1_IND*8 +: 8];
+    end else begin
+        assign qsfp0_txd_1 = 64'h0707070707070707;
+        assign qsfp0_txc_1 = 8'hff;
+    end
+
+    if (QSFP0_2_IND >= 0 && QSFP0_2_IND < PORT_COUNT) begin
+        assign port_xgmii_tx_clk[QSFP0_2_IND] = qsfp0_tx_clk_2;
+        assign port_xgmii_tx_rst[QSFP0_2_IND] = qsfp0_tx_rst_2;
+        assign port_xgmii_rx_clk[QSFP0_2_IND] = qsfp0_rx_clk_2;
+        assign port_xgmii_rx_rst[QSFP0_2_IND] = qsfp0_rx_rst_2;
+        assign port_xgmii_rxd[QSFP0_2_IND*64 +: 64] = qsfp0_rxd_2;
+        assign port_xgmii_rxc[QSFP0_2_IND*8 +: 8] = qsfp0_rxc_2;
+
+        assign qsfp0_txd_2 = port_xgmii_txd[QSFP0_2_IND*64 +: 64];
+        assign qsfp0_txc_2 = port_xgmii_txc[QSFP0_2_IND*8 +: 8];
+    end else begin
+        assign qsfp0_txd_2 = 64'h0707070707070707;
+        assign qsfp0_txc_2 = 8'hff;
+    end
+
+    if (QSFP0_3_IND >= 0 && QSFP0_3_IND < PORT_COUNT) begin
+        assign port_xgmii_tx_clk[QSFP0_3_IND] = qsfp0_tx_clk_3;
+        assign port_xgmii_tx_rst[QSFP0_3_IND] = qsfp0_tx_rst_3;
+        assign port_xgmii_rx_clk[QSFP0_3_IND] = qsfp0_rx_clk_3;
+        assign port_xgmii_rx_rst[QSFP0_3_IND] = qsfp0_rx_rst_3;
+        assign port_xgmii_rxd[QSFP0_3_IND*64 +: 64] = qsfp0_rxd_3;
+        assign port_xgmii_rxc[QSFP0_3_IND*8 +: 8] = qsfp0_rxc_3;
+
+        assign qsfp0_txd_3 = port_xgmii_txd[QSFP0_3_IND*64 +: 64];
+        assign qsfp0_txc_3 = port_xgmii_txc[QSFP0_3_IND*8 +: 8];
+    end else begin
+        assign qsfp0_txd_3 = 64'h0707070707070707;
+        assign qsfp0_txc_3 = 8'hff;
+    end
+
+    if (QSFP0_4_IND >= 0 && QSFP0_4_IND < PORT_COUNT) begin
+        assign port_xgmii_tx_clk[QSFP0_4_IND] = qsfp0_tx_clk_4;
+        assign port_xgmii_tx_rst[QSFP0_4_IND] = qsfp0_tx_rst_4;
+        assign port_xgmii_rx_clk[QSFP0_4_IND] = qsfp0_rx_clk_4;
+        assign port_xgmii_rx_rst[QSFP0_4_IND] = qsfp0_rx_rst_4;
+        assign port_xgmii_rxd[QSFP0_4_IND*64 +: 64] = qsfp0_rxd_4;
+        assign port_xgmii_rxc[QSFP0_4_IND*8 +: 8] = qsfp0_rxc_4;
+
+        assign qsfp0_txd_4 = port_xgmii_txd[QSFP0_4_IND*64 +: 64];
+        assign qsfp0_txc_4 = port_xgmii_txc[QSFP0_4_IND*8 +: 8];
+    end else begin
+        assign qsfp0_txd_4 = 64'h0707070707070707;
+        assign qsfp0_txc_4 = 8'hff;
+    end
 
     if (QSFP1_1_IND >= 0 && QSFP1_1_IND < PORT_COUNT) begin
         assign port_xgmii_tx_clk[QSFP1_1_IND] = qsfp1_tx_clk_1;
@@ -2111,66 +2061,6 @@ generate
     end else begin
         assign qsfp1_txd_4 = 64'h0707070707070707;
         assign qsfp1_txc_4 = 8'hff;
-    end
-
-    if (QSFP2_1_IND >= 0 && QSFP2_1_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_1_IND] = qsfp2_tx_clk_1;
-        assign port_xgmii_tx_rst[QSFP2_1_IND] = qsfp2_tx_rst_1;
-        assign port_xgmii_rx_clk[QSFP2_1_IND] = qsfp2_rx_clk_1;
-        assign port_xgmii_rx_rst[QSFP2_1_IND] = qsfp2_rx_rst_1;
-        assign port_xgmii_rxd[QSFP2_1_IND*64 +: 64] = qsfp2_rxd_1;
-        assign port_xgmii_rxc[QSFP2_1_IND*8 +: 8] = qsfp2_rxc_1;
-
-        assign qsfp2_txd_1 = port_xgmii_txd[QSFP2_1_IND*64 +: 64];
-        assign qsfp2_txc_1 = port_xgmii_txc[QSFP2_1_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_1 = 64'h0707070707070707;
-        assign qsfp2_txc_1 = 8'hff;
-    end
-
-    if (QSFP2_2_IND >= 0 && QSFP2_2_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_2_IND] = qsfp2_tx_clk_2;
-        assign port_xgmii_tx_rst[QSFP2_2_IND] = qsfp2_tx_rst_2;
-        assign port_xgmii_rx_clk[QSFP2_2_IND] = qsfp2_rx_clk_2;
-        assign port_xgmii_rx_rst[QSFP2_2_IND] = qsfp2_rx_rst_2;
-        assign port_xgmii_rxd[QSFP2_2_IND*64 +: 64] = qsfp2_rxd_2;
-        assign port_xgmii_rxc[QSFP2_2_IND*8 +: 8] = qsfp2_rxc_2;
-
-        assign qsfp2_txd_2 = port_xgmii_txd[QSFP2_2_IND*64 +: 64];
-        assign qsfp2_txc_2 = port_xgmii_txc[QSFP2_2_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_2 = 64'h0707070707070707;
-        assign qsfp2_txc_2 = 8'hff;
-    end
-
-    if (QSFP2_3_IND >= 0 && QSFP2_3_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_3_IND] = qsfp2_tx_clk_3;
-        assign port_xgmii_tx_rst[QSFP2_3_IND] = qsfp2_tx_rst_3;
-        assign port_xgmii_rx_clk[QSFP2_3_IND] = qsfp2_rx_clk_3;
-        assign port_xgmii_rx_rst[QSFP2_3_IND] = qsfp2_rx_rst_3;
-        assign port_xgmii_rxd[QSFP2_3_IND*64 +: 64] = qsfp2_rxd_3;
-        assign port_xgmii_rxc[QSFP2_3_IND*8 +: 8] = qsfp2_rxc_3;
-
-        assign qsfp2_txd_3 = port_xgmii_txd[QSFP2_3_IND*64 +: 64];
-        assign qsfp2_txc_3 = port_xgmii_txc[QSFP2_3_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_3 = 64'h0707070707070707;
-        assign qsfp2_txc_3 = 8'hff;
-    end
-
-    if (QSFP2_4_IND >= 0 && QSFP2_4_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_4_IND] = qsfp2_tx_clk_4;
-        assign port_xgmii_tx_rst[QSFP2_4_IND] = qsfp2_tx_rst_4;
-        assign port_xgmii_rx_clk[QSFP2_4_IND] = qsfp2_rx_clk_4;
-        assign port_xgmii_rx_rst[QSFP2_4_IND] = qsfp2_rx_rst_4;
-        assign port_xgmii_rxd[QSFP2_4_IND*64 +: 64] = qsfp2_rxd_4;
-        assign port_xgmii_rxc[QSFP2_4_IND*8 +: 8] = qsfp2_rxc_4;
-
-        assign qsfp2_txd_4 = port_xgmii_txd[QSFP2_4_IND*64 +: 64];
-        assign qsfp2_txc_4 = port_xgmii_txc[QSFP2_4_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_4 = 64'h0707070707070707;
-        assign qsfp2_txc_4 = 8'hff;
     end
 
     case (IF_COUNT)

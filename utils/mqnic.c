@@ -38,10 +38,12 @@ either expressed or implied, of The Regents of the University of California.
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 
 struct mqnic *mqnic_open(const char *dev_name)
 {
     struct mqnic *dev = calloc(1, sizeof(struct mqnic));
+    struct stat st;
 
     if (!dev)
     {
@@ -57,14 +59,26 @@ struct mqnic *mqnic_open(const char *dev_name)
         goto fail_open;
     }
 
-    struct mqnic_ioctl_info info;
-    if (ioctl(dev->fd, MQNIC_IOCTL_INFO, &info) != 0)
+    if (fstat(dev->fd, &st) == -1)
     {
-        perror("MQNICCTL_INFO ioctl failed");
-        goto fail_ioctl;
+        perror("fstat failed");
+        goto fail_fstat;
     }
 
-    dev->regs_size = info.regs_size;
+    dev->regs_size = st.st_size;
+
+    if (dev->regs_size == 0)
+    {
+        struct mqnic_ioctl_info info;
+        if (ioctl(dev->fd, MQNIC_IOCTL_INFO, &info) != 0)
+        {
+            perror("MQNIC_IOCTL_INFO ioctl failed");
+            goto fail_ioctl;
+        }
+
+        dev->regs_size = info.regs_size;
+    }
+
     dev->regs = (volatile uint8_t *)mmap(NULL, dev->regs_size, PROT_READ | PROT_WRITE, MAP_SHARED, dev->fd, 0);
     if (dev->regs == MAP_FAILED)
     {
@@ -75,8 +89,7 @@ struct mqnic *mqnic_open(const char *dev_name)
     if (mqnic_reg_read32(dev->regs, MQNIC_REG_FW_ID) == 0xffffffff)
     {
         fprintf(stderr, "Error: device needs to be reset\n");
-        munmap((void *)dev->regs, dev->regs_size);
-        goto fail_mmap_regs;
+        goto fail_reset;
     }
 
     dev->fw_id = mqnic_reg_read32(dev->regs, MQNIC_REG_FW_ID);
@@ -105,6 +118,11 @@ struct mqnic *mqnic_open(const char *dev_name)
         struct mqnic_if *interface = &dev->interfaces[k];
         interface->regs = dev->regs + k*dev->if_stride;
         interface->csr_regs = interface->regs + dev->if_csr_offset;
+
+        if (interface->regs >= dev->regs+dev->regs_size)
+            goto fail_range;
+        if (interface->csr_regs >= dev->regs+dev->regs_size)
+            goto fail_range;
 
         interface->if_id = mqnic_reg_read32(interface->csr_regs, MQNIC_IF_REG_IF_ID);
         interface->if_features = mqnic_reg_read32(interface->csr_regs, MQNIC_IF_REG_IF_FEATURES);
@@ -143,6 +161,9 @@ struct mqnic *mqnic_open(const char *dev_name)
             struct mqnic_port *port = &interface->ports[l];
             port->regs = interface->regs + interface->port_offset + interface->port_stride*l;
 
+            if (port->regs >= dev->regs+dev->regs_size)
+                goto fail_range;
+
             port->port_id = mqnic_reg_read32(port->regs, MQNIC_PORT_REG_PORT_ID);
             port->port_features = mqnic_reg_read32(port->regs, MQNIC_PORT_REG_PORT_FEATURES);
 
@@ -157,14 +178,22 @@ struct mqnic *mqnic_open(const char *dev_name)
             {
                 struct mqnic_sched *sched = &port->sched[m];
                 sched->regs = port->regs + port->sched_offset + port->sched_stride*m;
+
+                if (sched->regs >= dev->regs+dev->regs_size)
+                    goto fail_range;
             }
         }
     }
 
     return dev;
 
+fail_range:
+    fprintf(stderr, "Error: computed pointer out of range\n");
+fail_reset:
+    munmap((void *)dev->regs, dev->regs_size);
 fail_mmap_regs:
 fail_ioctl:
+fail_fstat:
     close(dev->fd);
 fail_open:
     free(dev);

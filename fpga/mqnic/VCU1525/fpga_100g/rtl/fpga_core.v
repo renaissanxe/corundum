@@ -48,30 +48,23 @@ module fpga_core #
     parameter AXIS_PCIE_CQ_USER_WIDTH = 183,
     parameter AXIS_PCIE_CC_USER_WIDTH = 81,
     parameter RQ_SEQ_NUM_WIDTH = 6,
-    parameter BAR0_APERTURE = 24
+    parameter BAR0_APERTURE = 24,
+    parameter AXIS_ETH_DATA_WIDTH = 512,
+    parameter AXIS_ETH_KEEP_WIDTH = AXIS_ETH_DATA_WIDTH/8
 )
 (
     /*
-     * Clock: 156.25 MHz, 250 MHz
+     * Clock: 250 MHz
      * Synchronous reset
      */
-    input  wire                               clk_156mhz,
-    input  wire                               rst_156mhz,
     input  wire                               clk_250mhz,
     input  wire                               rst_250mhz,
 
     /*
      * GPIO
      */
-    input  wire                               btnu,
-    input  wire                               btnl,
-    input  wire                               btnd,
-    input  wire                               btnr,
-    input  wire                               btnc,
     input  wire [3:0]                         sw,
-    output wire [7:0]                         led,
-    output wire [7:0]                         pmod0,
-    output wire [7:0]                         pmod1,
+    output wire [2:0]                         led,
 
     /*
      * I2C
@@ -165,107 +158,55 @@ module fpga_core #
     /*
      * Ethernet: QSFP28
      */
-    input  wire                               qsfp1_tx_clk_1,
-    input  wire                               qsfp1_tx_rst_1,
-    output wire [63:0]                        qsfp1_txd_1,
-    output wire [7:0]                         qsfp1_txc_1,
-    output wire                               qsfp1_tx_prbs31_enable_1,
-    input  wire                               qsfp1_rx_clk_1,
-    input  wire                               qsfp1_rx_rst_1,
-    input  wire [63:0]                        qsfp1_rxd_1,
-    input  wire [7:0]                         qsfp1_rxc_1,
-    output wire                               qsfp1_rx_prbs31_enable_1,
-    input  wire [6:0]                         qsfp1_rx_error_count_1,
-    input  wire                               qsfp1_tx_clk_2,
-    input  wire                               qsfp1_tx_rst_2,
-    output wire [63:0]                        qsfp1_txd_2,
-    output wire [7:0]                         qsfp1_txc_2,
-    output wire                               qsfp1_tx_prbs31_enable_2,
-    input  wire                               qsfp1_rx_clk_2,
-    input  wire                               qsfp1_rx_rst_2,
-    input  wire [63:0]                        qsfp1_rxd_2,
-    input  wire [7:0]                         qsfp1_rxc_2,
-    output wire                               qsfp1_rx_prbs31_enable_2,
-    input  wire [6:0]                         qsfp1_rx_error_count_2,
-    input  wire                               qsfp1_tx_clk_3,
-    input  wire                               qsfp1_tx_rst_3,
-    output wire [63:0]                        qsfp1_txd_3,
-    output wire [7:0]                         qsfp1_txc_3,
-    output wire                               qsfp1_tx_prbs31_enable_3,
-    input  wire                               qsfp1_rx_clk_3,
-    input  wire                               qsfp1_rx_rst_3,
-    input  wire [63:0]                        qsfp1_rxd_3,
-    input  wire [7:0]                         qsfp1_rxc_3,
-    output wire                               qsfp1_rx_prbs31_enable_3,
-    input  wire [6:0]                         qsfp1_rx_error_count_3,
-    input  wire                               qsfp1_tx_clk_4,
-    input  wire                               qsfp1_tx_rst_4,
-    output wire [63:0]                        qsfp1_txd_4,
-    output wire [7:0]                         qsfp1_txc_4,
-    output wire                               qsfp1_tx_prbs31_enable_4,
-    input  wire                               qsfp1_rx_clk_4,
-    input  wire                               qsfp1_rx_rst_4,
-    input  wire [63:0]                        qsfp1_rxd_4,
-    input  wire [7:0]                         qsfp1_rxc_4,
-    output wire                               qsfp1_rx_prbs31_enable_4,
-    input  wire [6:0]                         qsfp1_rx_error_count_4,
+    input  wire                               qsfp0_tx_clk,
+    input  wire                               qsfp0_tx_rst,
+
+    output wire [AXIS_ETH_DATA_WIDTH-1:0]     qsfp0_tx_axis_tdata,
+    output wire [AXIS_ETH_KEEP_WIDTH-1:0]     qsfp0_tx_axis_tkeep,
+    output wire                               qsfp0_tx_axis_tvalid,
+    input  wire                               qsfp0_tx_axis_tready,
+    output wire                               qsfp0_tx_axis_tlast,
+    output wire                               qsfp0_tx_axis_tuser,
+
+    input  wire                               qsfp0_rx_clk,
+    input  wire                               qsfp0_rx_rst,
+
+    input  wire [AXIS_ETH_DATA_WIDTH-1:0]     qsfp0_rx_axis_tdata,
+    input  wire [AXIS_ETH_KEEP_WIDTH-1:0]     qsfp0_rx_axis_tkeep,
+    input  wire                               qsfp0_rx_axis_tvalid,
+    input  wire                               qsfp0_rx_axis_tlast,
+    input  wire                               qsfp0_rx_axis_tuser,
+
+    output wire                               qsfp0_modsell,
+    output wire                               qsfp0_resetl,
+    input  wire                               qsfp0_modprsl,
+    input  wire                               qsfp0_intl,
+    output wire                               qsfp0_lpmode,
+
+    input  wire                               qsfp1_tx_clk,
+    input  wire                               qsfp1_tx_rst,
+
+    output wire [AXIS_ETH_DATA_WIDTH-1:0]     qsfp1_tx_axis_tdata,
+    output wire [AXIS_ETH_KEEP_WIDTH-1:0]     qsfp1_tx_axis_tkeep,
+    output wire                               qsfp1_tx_axis_tvalid,
+    input  wire                               qsfp1_tx_axis_tready,
+    output wire                               qsfp1_tx_axis_tlast,
+    output wire                               qsfp1_tx_axis_tuser,
+
+    input  wire                               qsfp1_rx_clk,
+    input  wire                               qsfp1_rx_rst,
+
+    input  wire [AXIS_ETH_DATA_WIDTH-1:0]     qsfp1_rx_axis_tdata,
+    input  wire [AXIS_ETH_KEEP_WIDTH-1:0]     qsfp1_rx_axis_tkeep,
+    input  wire                               qsfp1_rx_axis_tvalid,
+    input  wire                               qsfp1_rx_axis_tlast,
+    input  wire                               qsfp1_rx_axis_tuser,
 
     output wire                               qsfp1_modsell,
     output wire                               qsfp1_resetl,
     input  wire                               qsfp1_modprsl,
     input  wire                               qsfp1_intl,
-    output wire                               qsfp1_lpmode,
-
-    input  wire                               qsfp2_tx_clk_1,
-    input  wire                               qsfp2_tx_rst_1,
-    output wire [63:0]                        qsfp2_txd_1,
-    output wire [7:0]                         qsfp2_txc_1,
-    output wire                               qsfp2_tx_prbs31_enable_1,
-    input  wire                               qsfp2_rx_clk_1,
-    input  wire                               qsfp2_rx_rst_1,
-    input  wire [63:0]                        qsfp2_rxd_1,
-    input  wire [7:0]                         qsfp2_rxc_1,
-    output wire                               qsfp2_rx_prbs31_enable_1,
-    input  wire [6:0]                         qsfp2_rx_error_count_1,
-    input  wire                               qsfp2_tx_clk_2,
-    input  wire                               qsfp2_tx_rst_2,
-    output wire [63:0]                        qsfp2_txd_2,
-    output wire [7:0]                         qsfp2_txc_2,
-    output wire                               qsfp2_tx_prbs31_enable_2,
-    input  wire                               qsfp2_rx_clk_2,
-    input  wire                               qsfp2_rx_rst_2,
-    input  wire [63:0]                        qsfp2_rxd_2,
-    input  wire [7:0]                         qsfp2_rxc_2,
-    output wire                               qsfp2_rx_prbs31_enable_2,
-    input  wire [6:0]                         qsfp2_rx_error_count_2,
-    input  wire                               qsfp2_tx_clk_3,
-    input  wire                               qsfp2_tx_rst_3,
-    output wire [63:0]                        qsfp2_txd_3,
-    output wire [7:0]                         qsfp2_txc_3,
-    output wire                               qsfp2_tx_prbs31_enable_3,
-    input  wire                               qsfp2_rx_clk_3,
-    input  wire                               qsfp2_rx_rst_3,
-    input  wire [63:0]                        qsfp2_rxd_3,
-    input  wire [7:0]                         qsfp2_rxc_3,
-    output wire                               qsfp2_rx_prbs31_enable_3,
-    input  wire [6:0]                         qsfp2_rx_error_count_3,
-    input  wire                               qsfp2_tx_clk_4,
-    input  wire                               qsfp2_tx_rst_4,
-    output wire [63:0]                        qsfp2_txd_4,
-    output wire [7:0]                         qsfp2_txc_4,
-    output wire                               qsfp2_tx_prbs31_enable_4,
-    input  wire                               qsfp2_rx_clk_4,
-    input  wire                               qsfp2_rx_rst_4,
-    input  wire [63:0]                        qsfp2_rxd_4,
-    input  wire [7:0]                         qsfp2_rxc_4,
-    output wire                               qsfp2_rx_prbs31_enable_4,
-    input  wire [6:0]                         qsfp2_rx_error_count_4,
-
-    output wire                               qsfp2_modsell,
-    output wire                               qsfp2_resetl,
-    input  wire                               qsfp2_modprsl,
-    input  wire                               qsfp2_intl,
-    output wire                               qsfp2_lpmode
+    output wire                               qsfp1_lpmode
 );
 
 // PHC parameters
@@ -278,7 +219,7 @@ parameter PTP_PERIOD_FNS = 32'd0;
 // FW and board IDs
 parameter FW_ID = 32'd0;
 parameter FW_VER = {16'd0, 16'd1};
-parameter BOARD_ID = {16'h10ee, 16'h9076};
+parameter BOARD_ID = {16'h10ee, 16'h95f5};
 parameter BOARD_VER = {16'd0, 16'd1};
 parameter FPGA_ID = 32'h4B31093;
 
@@ -294,7 +235,7 @@ parameter TX_QUEUE_OP_TABLE_SIZE = 32;
 parameter RX_QUEUE_OP_TABLE_SIZE = 32;
 parameter TX_CPL_QUEUE_OP_TABLE_SIZE = TX_QUEUE_OP_TABLE_SIZE;
 parameter RX_CPL_QUEUE_OP_TABLE_SIZE = RX_QUEUE_OP_TABLE_SIZE;
-parameter TX_QUEUE_INDEX_WIDTH = 8;
+parameter TX_QUEUE_INDEX_WIDTH = 13;
 parameter RX_QUEUE_INDEX_WIDTH = 8;
 parameter TX_CPL_QUEUE_INDEX_WIDTH = TX_QUEUE_INDEX_WIDTH;
 parameter RX_CPL_QUEUE_INDEX_WIDTH = RX_QUEUE_INDEX_WIDTH;
@@ -311,7 +252,7 @@ parameter RX_DESC_TABLE_SIZE = 32;
 parameter RX_PKT_TABLE_SIZE = 8;
 
 // Scheduler parameters (port)
-parameter TX_SCHEDULER = "TDMA_RR";
+parameter TX_SCHEDULER = "RR";
 parameter TX_SCHEDULER_OP_TABLE_SIZE = TX_DESC_TABLE_SIZE;
 parameter TX_SCHEDULER_PIPELINE = TX_QUEUE_PIPELINE;
 parameter TDMA_INDEX_WIDTH = 6;
@@ -319,9 +260,9 @@ parameter TDMA_INDEX_WIDTH = 6;
 // Timstamping parameters (port)
 parameter LOGIC_PTP_PERIOD_NS = 6'h4;
 parameter LOGIC_PTP_PERIOD_FNS = 16'h0000;
-parameter IF_PTP_PERIOD_NS = 6'h6;
-parameter IF_PTP_PERIOD_FNS = 16'h6666;
-parameter PTP_TS_ENABLE = 1;
+parameter IF_PTP_PERIOD_NS = 6'h3;
+parameter IF_PTP_PERIOD_FNS = 16'h1a60;
+parameter PTP_TS_ENABLE = 0;
 parameter PTP_TS_WIDTH = 96;
 parameter TX_PTP_TS_FIFO_DEPTH = 32;
 parameter RX_PTP_TS_FIFO_DEPTH = 32;
@@ -335,9 +276,9 @@ parameter ENABLE_PADDING = 1;
 parameter ENABLE_DIC = 1;
 parameter MIN_FRAME_LENGTH = 64;
 parameter TX_FIFO_DEPTH = 32768;
-parameter RX_FIFO_DEPTH = 32768;
-parameter MAX_TX_SIZE = 2048;
-parameter MAX_RX_SIZE = 2048;
+parameter RX_FIFO_DEPTH = 131072;
+parameter MAX_TX_SIZE = 16384;
+parameter MAX_RX_SIZE = 16384;
 
 // AXI lite interface parameters
 parameter AXIL_DATA_WIDTH = 32;
@@ -348,8 +289,8 @@ parameter IF_AXIL_ADDR_WIDTH = AXIL_ADDR_WIDTH-$clog2(IF_COUNT);
 parameter AXIL_CSR_ADDR_WIDTH = IF_AXIL_ADDR_WIDTH-5-$clog2((PORTS_PER_IF+3)/8);
 
 // AXI stream interface parameters
-parameter AXIS_DATA_WIDTH = 64;
-parameter AXIS_KEEP_WIDTH = AXIS_DATA_WIDTH/8;
+parameter AXIS_DATA_WIDTH = AXIS_ETH_DATA_WIDTH;
+parameter AXIS_KEEP_WIDTH = AXIS_ETH_KEEP_WIDTH;
 
 // PCIe DMA parameters
 parameter PCIE_ADDR_WIDTH = 64;
@@ -414,26 +355,6 @@ wire [1:0]                     axil_csr_rresp;
 wire                           axil_csr_rvalid;
 wire                           axil_csr_rready;
 
-wire [AXIL_CSR_ADDR_WIDTH-1:0] axil_ber_awaddr;
-wire [2:0]                     axil_ber_awprot;
-wire                           axil_ber_awvalid;
-wire                           axil_ber_awready;
-wire [AXIL_DATA_WIDTH-1:0]     axil_ber_wdata;
-wire [AXIL_STRB_WIDTH-1:0]     axil_ber_wstrb;
-wire                           axil_ber_wvalid;
-wire                           axil_ber_wready;
-wire [1:0]                     axil_ber_bresp;
-wire                           axil_ber_bvalid;
-wire                           axil_ber_bready;
-wire [AXIL_CSR_ADDR_WIDTH-1:0] axil_ber_araddr;
-wire [2:0]                     axil_ber_arprot;
-wire                           axil_ber_arvalid;
-wire                           axil_ber_arready;
-wire [AXIL_DATA_WIDTH-1:0]     axil_ber_rdata;
-wire [1:0]                     axil_ber_rresp;
-wire                           axil_ber_rvalid;
-wire                           axil_ber_rready;
-
 // DMA connections
 wire [SEG_COUNT*RAM_SEL_WIDTH-1:0]   dma_ram_wr_cmd_sel;
 wire [SEG_COUNT*SEG_BE_WIDTH-1:0]    dma_ram_wr_cmd_be;
@@ -486,11 +407,6 @@ wire [95:0] ptp_ts_96;
 wire ptp_ts_step;
 wire ptp_pps;
 
-reg ptp_perout_enable_reg = 1'b0;
-wire ptp_perout_locked;
-wire ptp_perout_error;
-wire ptp_perout_pulse;
-
 // control registers
 reg axil_csr_awready_reg = 1'b0;
 reg axil_csr_wready_reg = 1'b0;
@@ -499,14 +415,14 @@ reg axil_csr_arready_reg = 1'b0;
 reg [AXIL_DATA_WIDTH-1:0] axil_csr_rdata_reg = {AXIL_DATA_WIDTH{1'b0}};
 reg axil_csr_rvalid_reg = 1'b0;
 
+reg qsfp0_modsell_reg = 1'b0;
 reg qsfp1_modsell_reg = 1'b0;
-reg qsfp2_modsell_reg = 1'b0;
 
+reg qsfp0_lpmode_reg = 1'b0;
 reg qsfp1_lpmode_reg = 1'b0;
-reg qsfp2_lpmode_reg = 1'b0;
 
+reg qsfp0_resetl_reg = 1'b1;
 reg qsfp1_resetl_reg = 1'b1;
-reg qsfp2_resetl_reg = 1'b1;
 
 reg i2c_scl_o_reg = 1'b1;
 reg i2c_sda_o_reg = 1'b1;
@@ -525,13 +441,6 @@ reg [15:0] set_ptp_offset_count_reg = 0;
 reg set_ptp_offset_valid_reg = 0;
 wire set_ptp_offset_active;
 
-reg [95:0] set_ptp_perout_start_ts_96_reg = 0;
-reg set_ptp_perout_start_ts_96_valid_reg = 0;
-reg [95:0] set_ptp_perout_period_ts_96_reg = 0;
-reg set_ptp_perout_period_ts_96_valid_reg = 0;
-reg [95:0] set_ptp_perout_width_ts_96_reg = 0;
-reg set_ptp_perout_width_ts_96_valid_reg = 0;
-
 assign axil_csr_awready = axil_csr_awready_reg;
 assign axil_csr_wready = axil_csr_wready_reg;
 assign axil_csr_bresp = 2'b00;
@@ -541,14 +450,14 @@ assign axil_csr_rdata = axil_csr_rdata_reg;
 assign axil_csr_rresp = 2'b00;
 assign axil_csr_rvalid = axil_csr_rvalid_reg;
 
+assign qsfp0_modsell = qsfp0_modsell_reg;
 assign qsfp1_modsell = qsfp1_modsell_reg;
-assign qsfp2_modsell = qsfp2_modsell_reg;
 
+assign qsfp0_lpmode = qsfp0_lpmode_reg;
 assign qsfp1_lpmode = qsfp1_lpmode_reg;
-assign qsfp2_lpmode = qsfp2_lpmode_reg;
 
+assign qsfp0_resetl = qsfp0_resetl_reg;
 assign qsfp1_resetl = qsfp1_resetl_reg;
-assign qsfp2_resetl = qsfp2_resetl_reg;
 
 assign i2c_scl_o = i2c_scl_o_reg;
 assign i2c_scl_t = i2c_scl_o_reg;
@@ -570,10 +479,6 @@ always @(posedge clk_250mhz) begin
     set_ptp_period_valid_reg <= 1'b0;
     set_ptp_offset_valid_reg <= 1'b0;
 
-    set_ptp_perout_start_ts_96_valid_reg <= 1'b0;
-    set_ptp_perout_period_ts_96_valid_reg <= 1'b0;
-    set_ptp_perout_width_ts_96_valid_reg <= 1'b0;
-
     if (axil_csr_awvalid && axil_csr_wvalid && !axil_csr_bvalid) begin
         // write operation
         axil_csr_awready_reg <= 1'b1;
@@ -585,14 +490,14 @@ always @(posedge clk_250mhz) begin
             16'h0100: begin
                 // GPIO out
                 if (axil_csr_wstrb[1]) begin
-                    qsfp1_modsell_reg <= axil_csr_wdata[9];
-                    qsfp2_modsell_reg <= axil_csr_wdata[11];
+                    qsfp0_modsell_reg <= axil_csr_wdata[9];
+                    qsfp1_modsell_reg <= axil_csr_wdata[11];
                 end
                 if (axil_csr_wstrb[0]) begin
-                    qsfp1_resetl_reg <= axil_csr_wdata[0];
-                    qsfp1_lpmode_reg <= axil_csr_wdata[2];
-                    qsfp2_resetl_reg <= axil_csr_wdata[4];
-                    qsfp2_lpmode_reg <= axil_csr_wdata[6];
+                    qsfp0_resetl_reg <= axil_csr_wdata[0];
+                    qsfp0_lpmode_reg <= axil_csr_wdata[2];
+                    qsfp1_resetl_reg <= axil_csr_wdata[4];
+                    qsfp1_lpmode_reg <= axil_csr_wdata[6];
                 end
                 if (axil_csr_wstrb[2]) begin
                     i2c_scl_o_reg <= axil_csr_wdata[16];
@@ -621,34 +526,6 @@ always @(posedge clk_250mhz) begin
                 set_ptp_offset_count_reg <= axil_csr_wdata;
                 set_ptp_offset_valid_reg <= 1'b1;
             end
-            16'h0260: begin
-                // PTP perout control
-                ptp_perout_enable_reg <= axil_csr_wdata[0];
-            end
-            16'h0270: set_ptp_perout_start_ts_96_reg[15:0] <= axil_csr_wdata;  // PTP perout start fns
-            16'h0274: set_ptp_perout_start_ts_96_reg[45:16] <= axil_csr_wdata; // PTP perout start ns
-            16'h0278: set_ptp_perout_start_ts_96_reg[79:48] <= axil_csr_wdata; // PTP perout start sec l
-            16'h027C: begin
-                // PTP perout start sec h
-                set_ptp_perout_start_ts_96_reg[95:80] <= axil_csr_wdata;
-                set_ptp_perout_start_ts_96_valid_reg <= 1'b1;
-            end
-            16'h0280: set_ptp_perout_period_ts_96_reg[15:0] <= axil_csr_wdata;  // PTP perout period fns
-            16'h0284: set_ptp_perout_period_ts_96_reg[45:16] <= axil_csr_wdata; // PTP perout period ns
-            16'h0288: set_ptp_perout_period_ts_96_reg[79:48] <= axil_csr_wdata; // PTP perout period sec l
-            16'h028C: begin
-                // PTP perout period sec h
-                set_ptp_perout_period_ts_96_reg[95:80] <= axil_csr_wdata;
-                set_ptp_perout_period_ts_96_valid_reg <= 1'b1;
-            end
-            16'h0290: set_ptp_perout_width_ts_96_reg[15:0] <= axil_csr_wdata;  // PTP perout width fns
-            16'h0294: set_ptp_perout_width_ts_96_reg[45:16] <= axil_csr_wdata; // PTP perout width ns
-            16'h0298: set_ptp_perout_width_ts_96_reg[79:48] <= axil_csr_wdata; // PTP perout width sec l
-            16'h029C: begin
-                // PTP perout width sec h
-                set_ptp_perout_width_ts_96_reg[95:80] <= axil_csr_wdata;
-                set_ptp_perout_width_ts_96_valid_reg <= 1'b1;
-            end
         endcase
     end
 
@@ -673,32 +550,32 @@ always @(posedge clk_250mhz) begin
             // GPIO
             16'h0100: begin
                 // GPIO out
-                axil_csr_rdata_reg[9] <= qsfp1_modsell_reg;
-                axil_csr_rdata_reg[11] <= qsfp2_modsell_reg;
-                axil_csr_rdata_reg[0] <= qsfp1_resetl_reg;
-                axil_csr_rdata_reg[2] <= qsfp1_lpmode_reg;
-                axil_csr_rdata_reg[4] <= qsfp2_resetl_reg;
-                axil_csr_rdata_reg[6] <= qsfp2_lpmode_reg;
+                axil_csr_rdata_reg[9] <= qsfp0_modsell_reg;
+                axil_csr_rdata_reg[11] <= qsfp1_modsell_reg;
+                axil_csr_rdata_reg[0] <= qsfp0_resetl_reg;
+                axil_csr_rdata_reg[2] <= qsfp0_lpmode_reg;
+                axil_csr_rdata_reg[4] <= qsfp1_resetl_reg;
+                axil_csr_rdata_reg[6] <= qsfp1_lpmode_reg;
                 axil_csr_rdata_reg[16] <= i2c_scl_o_reg;
                 axil_csr_rdata_reg[17] <= i2c_sda_o_reg;
             end
             16'h0104: begin
                 // GPIO in
-                axil_csr_rdata_reg[8] <= qsfp1_modprsl;
-                axil_csr_rdata_reg[9] <= qsfp1_modsell;
-                axil_csr_rdata_reg[10] <= qsfp2_modprsl;
-                axil_csr_rdata_reg[11] <= qsfp2_modsell;
-                axil_csr_rdata_reg[0] <= qsfp1_resetl;
-                axil_csr_rdata_reg[1] <= qsfp1_intl;
-                axil_csr_rdata_reg[2] <= qsfp1_lpmode;
-                axil_csr_rdata_reg[4] <= qsfp2_resetl;
-                axil_csr_rdata_reg[5] <= qsfp2_intl;
-                axil_csr_rdata_reg[6] <= qsfp2_lpmode;
+                axil_csr_rdata_reg[8] <= qsfp0_modprsl;
+                axil_csr_rdata_reg[9] <= qsfp0_modsell;
+                axil_csr_rdata_reg[10] <= qsfp1_modprsl;
+                axil_csr_rdata_reg[11] <= qsfp1_modsell;
+                axil_csr_rdata_reg[0] <= qsfp0_resetl;
+                axil_csr_rdata_reg[1] <= qsfp0_intl;
+                axil_csr_rdata_reg[2] <= qsfp0_lpmode;
+                axil_csr_rdata_reg[4] <= qsfp1_resetl;
+                axil_csr_rdata_reg[5] <= qsfp1_intl;
+                axil_csr_rdata_reg[6] <= qsfp1_lpmode;
                 axil_csr_rdata_reg[16] <= i2c_scl_i;
                 axil_csr_rdata_reg[17] <= i2c_sda_i;
             end
             // PHC
-            16'h0200: axil_csr_rdata_reg <= {8'd0, 8'd0, 8'd0, 8'd1};  // PHC features
+            16'h0200: axil_csr_rdata_reg <= {8'd0, 8'd0, 8'd0, 8'd0};  // PHC features
             16'h0210: axil_csr_rdata_reg <= ptp_ts_96[15:0];  // PTP cur fns
             16'h0214: axil_csr_rdata_reg <= ptp_ts_96[45:16]; // PTP cur ns
             16'h0218: axil_csr_rdata_reg <= ptp_ts_96[79:48]; // PTP cur sec l
@@ -723,27 +600,6 @@ always @(posedge clk_250mhz) begin
             16'h0254: axil_csr_rdata_reg <= set_ptp_offset_ns_reg;    // PTP offset ns
             16'h0258: axil_csr_rdata_reg <= set_ptp_offset_count_reg; // PTP offset count
             16'h025C: axil_csr_rdata_reg <= set_ptp_offset_active;    // PTP offset status
-            16'h0260: begin
-                // PTP perout control
-                axil_csr_rdata_reg[0] <= ptp_perout_enable_reg;
-            end
-            16'h0264: begin
-                // PTP perout status
-                axil_csr_rdata_reg[0] <= ptp_perout_locked;
-                axil_csr_rdata_reg[1] <= ptp_perout_error;
-            end
-            16'h0270: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[15:0];  // PTP perout start fns
-            16'h0274: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[45:16]; // PTP perout start ns
-            16'h0278: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[79:48]; // PTP perout start sec l
-            16'h027C: axil_csr_rdata_reg <= set_ptp_perout_start_ts_96_reg[95:80]; // PTP perout start sec h
-            16'h0280: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[15:0];  // PTP perout period fns
-            16'h0284: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[45:16]; // PTP perout period ns
-            16'h0288: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[79:48]; // PTP perout period sec l
-            16'h028C: axil_csr_rdata_reg <= set_ptp_perout_period_ts_96_reg[95:80]; // PTP perout period sec h
-            16'h0290: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[15:0];  // PTP perout width fns
-            16'h0294: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[45:16]; // PTP perout width ns
-            16'h0298: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[79:48]; // PTP perout width sec l
-            16'h029C: axil_csr_rdata_reg <= set_ptp_perout_width_ts_96_reg[95:80]; // PTP perout width sec h
         endcase
     end
 
@@ -754,21 +610,19 @@ always @(posedge clk_250mhz) begin
         axil_csr_arready_reg <= 1'b0;
         axil_csr_rvalid_reg <= 1'b0;
 
+        qsfp0_modsell_reg <= 1'b1;
         qsfp1_modsell_reg <= 1'b1;
-        qsfp2_modsell_reg <= 1'b1;
 
+        qsfp0_lpmode_reg <= 1'b0;
         qsfp1_lpmode_reg <= 1'b0;
-        qsfp2_lpmode_reg <= 1'b0;
 
+        qsfp0_resetl_reg <= 1'b1;
         qsfp1_resetl_reg <= 1'b1;
-        qsfp2_resetl_reg <= 1'b1;
 
         i2c_scl_o_reg <= 1'b1;
         i2c_sda_o_reg <= 1'b1;
 
         pcie_dma_enable_reg <= 1'b0;
-
-        ptp_perout_enable_reg <= 1'b0;
     end
 end
 
@@ -917,6 +771,52 @@ rc_reg (
     .m_axis_tuser(axis_rc_tuser_r)
 );
 
+wire [AXIS_PCIE_DATA_WIDTH-1:0]    axis_rq_tdata_r;
+wire [AXIS_PCIE_KEEP_WIDTH-1:0]    axis_rq_tkeep_r;
+wire                               axis_rq_tlast_r;
+wire                               axis_rq_tready_r;
+wire [AXIS_PCIE_RQ_USER_WIDTH-1:0] axis_rq_tuser_r;
+wire                               axis_rq_tvalid_r;
+
+axis_register #(
+    .DATA_WIDTH(AXIS_PCIE_DATA_WIDTH),
+    .KEEP_ENABLE(1),
+    .KEEP_WIDTH(AXIS_PCIE_KEEP_WIDTH),
+    .LAST_ENABLE(1),
+    .ID_ENABLE(0),
+    .DEST_ENABLE(0),
+    .USER_ENABLE(1),
+    .USER_WIDTH(AXIS_PCIE_RQ_USER_WIDTH)
+)
+rq_reg (
+    .clk(clk_250mhz),
+    .rst(rst_250mhz),
+
+    /*
+     * AXI input
+     */
+    .s_axis_tdata(axis_rq_tdata_r),
+    .s_axis_tkeep(axis_rq_tkeep_r),
+    .s_axis_tvalid(axis_rq_tvalid_r),
+    .s_axis_tready(axis_rq_tready_r),
+    .s_axis_tlast(axis_rq_tlast_r),
+    .s_axis_tid(0),
+    .s_axis_tdest(0),
+    .s_axis_tuser(axis_rq_tuser_r),
+
+    /*
+     * AXI output
+     */
+    .m_axis_tdata(m_axis_rq_tdata),
+    .m_axis_tkeep(m_axis_rq_tkeep),
+    .m_axis_tvalid(m_axis_rq_tvalid),
+    .m_axis_tready(m_axis_rq_tready),
+    .m_axis_tlast(m_axis_rq_tlast),
+    .m_axis_tid(),
+    .m_axis_tdest(),
+    .m_axis_tuser(m_axis_rq_tuser)
+);
+
 assign cfg_fc_sel = 3'b100;
 
 wire [7:0] pcie_tx_fc_nph_av = cfg_fc_nph;
@@ -966,12 +866,12 @@ dma_if_pcie_us_inst (
     /*
      * AXI output (RQ)
      */
-    .m_axis_rq_tdata(m_axis_rq_tdata),
-    .m_axis_rq_tkeep(m_axis_rq_tkeep),
-    .m_axis_rq_tvalid(m_axis_rq_tvalid),
-    .m_axis_rq_tready(m_axis_rq_tready),
-    .m_axis_rq_tlast(m_axis_rq_tlast),
-    .m_axis_rq_tuser(m_axis_rq_tuser),
+    .m_axis_rq_tdata(axis_rq_tdata_r),
+    .m_axis_rq_tkeep(axis_rq_tkeep_r),
+    .m_axis_rq_tvalid(axis_rq_tvalid_r),
+    .m_axis_rq_tready(axis_rq_tready_r),
+    .m_axis_rq_tlast(axis_rq_tlast_r),
+    .m_axis_rq_tuser(axis_rq_tuser_r),
 
     /*
      * Transmit sequence number input
@@ -1208,11 +1108,11 @@ axil_interconnect #(
     .DATA_WIDTH(AXIL_DATA_WIDTH),
     .ADDR_WIDTH(AXIL_CSR_ADDR_WIDTH),
     .S_COUNT(IF_COUNT),
-    .M_COUNT(2),
+    .M_COUNT(1),
     .M_BASE_ADDR(0),
-    .M_ADDR_WIDTH({w_32(8+6+$clog2(8)), w_32(AXIL_CSR_ADDR_WIDTH-1)}),
-    .M_CONNECT_READ({2{{IF_COUNT{1'b1}}}}),
-    .M_CONNECT_WRITE({2{{IF_COUNT{1'b1}}}})
+    .M_ADDR_WIDTH({w_32(AXIL_CSR_ADDR_WIDTH-1)}),
+    .M_CONNECT_READ({1{{IF_COUNT{1'b1}}}}),
+    .M_CONNECT_WRITE({1{{IF_COUNT{1'b1}}}})
 )
 axil_csr_interconnect_inst (
     .clk(clk_250mhz),
@@ -1236,25 +1136,25 @@ axil_csr_interconnect_inst (
     .s_axil_rresp(axil_if_csr_rresp),
     .s_axil_rvalid(axil_if_csr_rvalid),
     .s_axil_rready(axil_if_csr_rready),
-    .m_axil_awaddr(  {axil_ber_awaddr,  axil_csr_awaddr}),
-    .m_axil_awprot(  {axil_ber_awprot,  axil_csr_awprot}),
-    .m_axil_awvalid( {axil_ber_awvalid, axil_csr_awvalid}),
-    .m_axil_awready( {axil_ber_awready, axil_csr_awready}),
-    .m_axil_wdata(   {axil_ber_wdata,   axil_csr_wdata}),
-    .m_axil_wstrb(   {axil_ber_wstrb,   axil_csr_wstrb}),
-    .m_axil_wvalid(  {axil_ber_wvalid,  axil_csr_wvalid}),
-    .m_axil_wready(  {axil_ber_wready,  axil_csr_wready}),
-    .m_axil_bresp(   {axil_ber_bresp,   axil_csr_bresp}),
-    .m_axil_bvalid(  {axil_ber_bvalid,  axil_csr_bvalid}),
-    .m_axil_bready(  {axil_ber_bready,  axil_csr_bready}),
-    .m_axil_araddr(  {axil_ber_araddr,  axil_csr_araddr}),
-    .m_axil_arprot(  {axil_ber_arprot,  axil_csr_arprot}),
-    .m_axil_arvalid( {axil_ber_arvalid, axil_csr_arvalid}),
-    .m_axil_arready( {axil_ber_arready, axil_csr_arready}),
-    .m_axil_rdata(   {axil_ber_rdata,   axil_csr_rdata}),
-    .m_axil_rresp(   {axil_ber_rresp,   axil_csr_rresp}),
-    .m_axil_rvalid(  {axil_ber_rvalid,  axil_csr_rvalid}),
-    .m_axil_rready(  {axil_ber_rready,  axil_csr_rready})
+    .m_axil_awaddr(  {axil_csr_awaddr}),
+    .m_axil_awprot(  {axil_csr_awprot}),
+    .m_axil_awvalid( {axil_csr_awvalid}),
+    .m_axil_awready( {axil_csr_awready}),
+    .m_axil_wdata(   {axil_csr_wdata}),
+    .m_axil_wstrb(   {axil_csr_wstrb}),
+    .m_axil_wvalid(  {axil_csr_wvalid}),
+    .m_axil_wready(  {axil_csr_wready}),
+    .m_axil_bresp(   {axil_csr_bresp}),
+    .m_axil_bvalid(  {axil_csr_bvalid}),
+    .m_axil_bready(  {axil_csr_bready}),
+    .m_axil_araddr(  {axil_csr_araddr}),
+    .m_axil_arprot(  {axil_csr_arprot}),
+    .m_axil_arvalid( {axil_csr_arvalid}),
+    .m_axil_arready( {axil_csr_arready}),
+    .m_axil_rdata(   {axil_csr_rdata}),
+    .m_axil_rresp(   {axil_csr_rresp}),
+    .m_axil_rvalid(  {axil_csr_rvalid}),
+    .m_axil_rready(  {axil_csr_rready})
 );
 
 wire [PCIE_ADDR_WIDTH-1:0]     pcie_ctrl_dma_read_desc_pcie_addr;
@@ -1922,266 +1822,93 @@ always @(posedge clk_250mhz) begin
     pps_led_reg <= pps_led_counter_reg > 0;
 end
 
-ptp_perout #(
-    .FNS_ENABLE(0),
-    .OUT_START_S(0),
-    .OUT_START_NS(0),
-    .OUT_START_FNS(0),
-    .OUT_PERIOD_S(1),
-    .OUT_PERIOD_NS(0),
-    .OUT_PERIOD_FNS(0),
-    .OUT_WIDTH_S(0),
-    .OUT_WIDTH_NS(500000000),
-    .OUT_WIDTH_FNS(0)
-)
-ptp_perout_inst (
-    .clk(clk_250mhz),
-    .rst(rst_250mhz),
-    .input_ts_96(ptp_ts_96),
-    .input_ts_step(ptp_ts_step),
-    .enable(ptp_perout_enable_reg),
-    .input_start(set_ptp_perout_start_ts_96_reg),
-    .input_start_valid(set_ptp_perout_start_ts_96_valid_reg),
-    .input_period(set_ptp_perout_period_ts_96_reg),
-    .input_period_valid(set_ptp_perout_period_ts_96_valid_reg),
-    .input_width(set_ptp_perout_width_ts_96_reg),
-    .input_width_valid(set_ptp_perout_width_ts_96_valid_reg),
-    .locked(ptp_perout_locked),
-    .error(ptp_perout_error),
-    .output_pulse(ptp_perout_pulse)
-);
+wire [PORT_COUNT-1:0] port_tx_clk;
+wire [PORT_COUNT-1:0] port_tx_rst;
+wire [PORT_COUNT*AXIS_ETH_DATA_WIDTH-1:0] port_tx_axis_tdata;
+wire [PORT_COUNT*AXIS_ETH_KEEP_WIDTH-1:0] port_tx_axis_tkeep;
+wire [PORT_COUNT-1:0] port_tx_axis_tvalid;
+wire [PORT_COUNT-1:0] port_tx_axis_tready;
+wire [PORT_COUNT-1:0] port_tx_axis_tlast;
+wire [PORT_COUNT-1:0] port_tx_axis_tuser;
 
-assign pmod0[0] = ptp_perout_pulse;
-assign pmod0[7:1] = 0;
-assign pmod1[0] = ptp_perout_pulse;
-assign pmod1[7:1] = 0;
-
-// BER tester
-tdma_ber #(
-    .COUNT(8),
-    .INDEX_WIDTH(6),
-    .SLICE_WIDTH(5),
-    .AXIL_DATA_WIDTH(AXIL_DATA_WIDTH),
-    .AXIL_ADDR_WIDTH(8+6+$clog2(8)),
-    .AXIL_STRB_WIDTH(AXIL_STRB_WIDTH),
-    .SCHEDULE_START_S(0),
-    .SCHEDULE_START_NS(0),
-    .SCHEDULE_PERIOD_S(0),
-    .SCHEDULE_PERIOD_NS(1000000),
-    .TIMESLOT_PERIOD_S(0),
-    .TIMESLOT_PERIOD_NS(100000),
-    .ACTIVE_PERIOD_S(0),
-    .ACTIVE_PERIOD_NS(90000)
-)
-tdma_ber_inst (
-    .clk(clk_250mhz),
-    .rst(rst_250mhz),
-    .phy_tx_clk({qsfp2_tx_clk_4, qsfp2_tx_clk_3, qsfp2_tx_clk_2, qsfp2_tx_clk_1, qsfp1_tx_clk_4, qsfp1_tx_clk_3, qsfp1_tx_clk_2, qsfp1_tx_clk_1}),
-    .phy_rx_clk({qsfp2_rx_clk_4, qsfp2_rx_clk_3, qsfp2_rx_clk_2, qsfp2_rx_clk_1, qsfp1_rx_clk_4, qsfp1_rx_clk_3, qsfp1_rx_clk_2, qsfp1_rx_clk_1}),
-    .phy_rx_error_count({qsfp2_rx_error_count_4, qsfp2_rx_error_count_3, qsfp2_rx_error_count_2, qsfp2_rx_error_count_1, qsfp1_rx_error_count_4, qsfp1_rx_error_count_3, qsfp1_rx_error_count_2, qsfp1_rx_error_count_1}),
-    .phy_tx_prbs31_enable({qsfp2_tx_prbs31_enable_4, qsfp2_tx_prbs31_enable_3, qsfp2_tx_prbs31_enable_2, qsfp2_tx_prbs31_enable_1, qsfp1_tx_prbs31_enable_4, qsfp1_tx_prbs31_enable_3, qsfp1_tx_prbs31_enable_2, qsfp1_tx_prbs31_enable_1}),
-    .phy_rx_prbs31_enable({qsfp2_rx_prbs31_enable_4, qsfp2_rx_prbs31_enable_3, qsfp2_rx_prbs31_enable_2, qsfp2_rx_prbs31_enable_1, qsfp1_rx_prbs31_enable_4, qsfp1_rx_prbs31_enable_3, qsfp1_rx_prbs31_enable_2, qsfp1_rx_prbs31_enable_1}),
-    .s_axil_awaddr(axil_ber_awaddr),
-    .s_axil_awprot(axil_ber_awprot),
-    .s_axil_awvalid(axil_ber_awvalid),
-    .s_axil_awready(axil_ber_awready),
-    .s_axil_wdata(axil_ber_wdata),
-    .s_axil_wstrb(axil_ber_wstrb),
-    .s_axil_wvalid(axil_ber_wvalid),
-    .s_axil_wready(axil_ber_wready),
-    .s_axil_bresp(axil_ber_bresp),
-    .s_axil_bvalid(axil_ber_bvalid),
-    .s_axil_bready(axil_ber_bready),
-    .s_axil_araddr(axil_ber_araddr),
-    .s_axil_arprot(axil_ber_arprot),
-    .s_axil_arvalid(axil_ber_arvalid),
-    .s_axil_arready(axil_ber_arready),
-    .s_axil_rdata(axil_ber_rdata),
-    .s_axil_rresp(axil_ber_rresp),
-    .s_axil_rvalid(axil_ber_rvalid),
-    .s_axil_rready(axil_ber_rready),
-    .ptp_ts_96(ptp_ts_96),
-    .ptp_ts_step(ptp_ts_step)
-);
-
-wire [PORT_COUNT-1:0] port_xgmii_tx_clk;
-wire [PORT_COUNT-1:0] port_xgmii_tx_rst;
-wire [PORT_COUNT-1:0] port_xgmii_rx_clk;
-wire [PORT_COUNT-1:0] port_xgmii_rx_rst;
-wire [PORT_COUNT*64-1:0] port_xgmii_txd;
-wire [PORT_COUNT*8-1:0] port_xgmii_txc;
-wire [PORT_COUNT*64-1:0] port_xgmii_rxd;
-wire [PORT_COUNT*8-1:0] port_xgmii_rxc;
+wire [PORT_COUNT-1:0] port_rx_clk;
+wire [PORT_COUNT-1:0] port_rx_rst;
+wire [PORT_COUNT*AXIS_ETH_DATA_WIDTH-1:0] port_rx_axis_tdata;
+wire [PORT_COUNT*AXIS_ETH_KEEP_WIDTH-1:0] port_rx_axis_tkeep;
+wire [PORT_COUNT-1:0] port_rx_axis_tvalid;
+wire [PORT_COUNT-1:0] port_rx_axis_tlast;
+wire [PORT_COUNT-1:0] port_rx_axis_tuser;
 
 assign led[0] = pps_led_reg;
-assign led[7:1] = 0;
+assign led[2:1] = 0;
 
 wire [IF_COUNT*32-1:0] if_msi_irq;
 
-//  counts    QSFP 1                                QSFP 2
-// IF  PORT   1_1      1_2      1_3      1_4        2_1      2_2      2_3      2_4
+//  counts    QSFP 0   QSFP 1
+// IF  PORT   0_1234   1_1234
 // 1   1      0 (0.0)
 // 1   2      0 (0.0)  1 (0.1)
-// 1   3      0 (0.0)  1 (0.1)  2 (0.2)
-// 1   4      0 (0.0)  1 (0.1)  2 (0.2)  3 (0.3)
-// 1   5      0 (0.0)  1 (0.1)  2 (0.2)  3 (0.3)    4 (0.4)
-// 1   6      0 (0.0)  1 (0.1)  2 (0.2)  3 (0.3)    4 (0.4)  5 (0.5)
-// 1   7      0 (0.0)  1 (0.1)  2 (0.2)  3 (0.3)    4 (0.4)  5 (0.5)  6 (0.6)
-// 1   8      0 (0.0)  1 (0.1)  2 (0.2)  3 (0.3)    4 (0.4)  5 (0.5)  6 (0.6)  7 (0.7)
-// 2   1      0 (0.0)                               1 (1.0)
-// 2   2      0 (0.0)  1 (0.1)                      2 (1.0)  3 (1.1)
-// 2   3      0 (0.0)  1 (0.1)  2 (0.2)             3 (1.0)  4 (1.1)  5 (1.2)
-// 2   4      0 (0.0)  1 (0.1)  2 (0.2)  3 (0.3)    4 (1.0)  5 (1.1)  6 (1.2)  7 (1.3)
-// 3   1      0 (0.0)  1 (1.0)  2 (2.0)
-// 3   2      0 (0.0)  1 (0.1)  2 (1.0)  3 (1.1)    4 (2.0)  5 (2.1)
-// 4   1      0 (0.0)  1 (1.0)  2 (2.0)  3 (3.0)
-// 4   2      0 (0.0)  1 (0.1)  2 (1.0)  3 (1.1)    4 (2.0)  5 (2.1)  6 (3.0)  7 (3.1)
-// 5   1      0 (0.0)  1 (1.0)  2 (2.0)  3 (3.0)    4 (4.0)
-// 6   1      0 (0.0)  1 (1.0)  2 (2.0)  3 (3.0)    4 (4.0)  5 (5.0)
-// 7   1      0 (0.0)  1 (1.0)  2 (2.0)  3 (3.0)    4 (4.0)  5 (5.0)  6 (6.0)
-// 8   1      0 (0.0)  1 (1.0)  2 (2.0)  3 (3.0)    4 (4.0)  5 (5.0)  6 (6.0)  7 (7.0)
+// 2   1      0 (0.0)  1 (1.0)
 
-localparam QSFP1_1_IND = 0;
-localparam QSFP1_2_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 1 ? 1 : -1) : 1;
-localparam QSFP1_3_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 2 ? 2 : -1) : 2;
-localparam QSFP1_4_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 3 ? 3 : -1) : 3;
-localparam QSFP2_1_IND = IF_COUNT == 2 ? PORTS_PER_IF : 4;
-localparam QSFP2_2_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 1 ? PORTS_PER_IF+1 : -1) : 5;
-localparam QSFP2_3_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 2 ? PORTS_PER_IF+2 : -1) : 6;
-localparam QSFP2_4_IND = IF_COUNT == 2 ? (PORTS_PER_IF > 3 ? PORTS_PER_IF+3 : -1) : 7;
+localparam QSFP0_IND = 0;
+localparam QSFP1_IND = 1;
 
 generate
     genvar m, n;
 
-    if (QSFP1_1_IND >= 0 && QSFP1_1_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP1_1_IND] = qsfp1_tx_clk_1;
-        assign port_xgmii_tx_rst[QSFP1_1_IND] = qsfp1_tx_rst_1;
-        assign port_xgmii_rx_clk[QSFP1_1_IND] = qsfp1_rx_clk_1;
-        assign port_xgmii_rx_rst[QSFP1_1_IND] = qsfp1_rx_rst_1;
-        assign port_xgmii_rxd[QSFP1_1_IND*64 +: 64] = qsfp1_rxd_1;
-        assign port_xgmii_rxc[QSFP1_1_IND*8 +: 8] = qsfp1_rxc_1;
+    if (QSFP0_IND >= 0 && QSFP0_IND < PORT_COUNT) begin
+        assign port_tx_clk[QSFP0_IND] = qsfp0_tx_clk;
+        assign port_tx_rst[QSFP0_IND] = qsfp0_tx_rst;
+        assign qsfp0_tx_axis_tdata = port_tx_axis_tdata[QSFP0_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH];
+        assign qsfp0_tx_axis_tkeep = port_tx_axis_tkeep[QSFP0_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH];
+        assign qsfp0_tx_axis_tvalid = port_tx_axis_tvalid[QSFP0_IND];
+        assign port_tx_axis_tready[QSFP0_IND] = qsfp0_tx_axis_tready;
+        assign qsfp0_tx_axis_tlast = port_tx_axis_tlast[QSFP0_IND];
+        assign qsfp0_tx_axis_tuser = port_tx_axis_tuser[QSFP0_IND];
 
-        assign qsfp1_txd_1 = port_xgmii_txd[QSFP1_1_IND*64 +: 64];
-        assign qsfp1_txc_1 = port_xgmii_txc[QSFP1_1_IND*8 +: 8];
+        assign port_rx_clk[QSFP0_IND] = qsfp0_rx_clk;
+        assign port_rx_rst[QSFP0_IND] = qsfp0_rx_rst;
+        assign port_rx_axis_tdata[QSFP0_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH] = qsfp0_rx_axis_tdata;
+        assign port_rx_axis_tkeep[QSFP0_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH] = qsfp0_rx_axis_tkeep;
+        assign port_rx_axis_tvalid[QSFP0_IND] = qsfp0_rx_axis_tvalid;
+        assign port_rx_axis_tlast[QSFP0_IND] = qsfp0_rx_axis_tlast;
+        assign port_rx_axis_tuser[QSFP0_IND] = qsfp0_rx_axis_tuser;
     end else begin
-        assign qsfp1_txd_1 = 64'h0707070707070707;
-        assign qsfp1_txc_1 = 8'hff;
+        assign qsfp0_tx_axis_tdata = {AXIS_ETH_DATA_WIDTH{1'b0}};
+        assign qsfp0_tx_axis_tkeep = {AXIS_ETH_KEEP_WIDTH{1'b0}};
+        assign qsfp0_tx_axis_tvalid = 1'b0;
+        assign qsfp0_tx_axis_tlast = 1'b0;
+        assign qsfp0_tx_axis_tuser = 1'b0;
     end
 
-    if (QSFP1_2_IND >= 0 && QSFP1_2_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP1_2_IND] = qsfp1_tx_clk_2;
-        assign port_xgmii_tx_rst[QSFP1_2_IND] = qsfp1_tx_rst_2;
-        assign port_xgmii_rx_clk[QSFP1_2_IND] = qsfp1_rx_clk_2;
-        assign port_xgmii_rx_rst[QSFP1_2_IND] = qsfp1_rx_rst_2;
-        assign port_xgmii_rxd[QSFP1_2_IND*64 +: 64] = qsfp1_rxd_2;
-        assign port_xgmii_rxc[QSFP1_2_IND*8 +: 8] = qsfp1_rxc_2;
+    if (QSFP1_IND >= 0 && QSFP1_IND < PORT_COUNT) begin
+        assign port_tx_clk[QSFP1_IND] = qsfp1_tx_clk;
+        assign port_tx_rst[QSFP1_IND] = qsfp1_tx_rst;
+        assign qsfp1_tx_axis_tdata = port_tx_axis_tdata[QSFP1_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH];
+        assign qsfp1_tx_axis_tkeep = port_tx_axis_tkeep[QSFP1_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH];
+        assign qsfp1_tx_axis_tvalid = port_tx_axis_tvalid[QSFP1_IND];
+        assign port_tx_axis_tready[QSFP1_IND] = qsfp1_tx_axis_tready;
+        assign qsfp1_tx_axis_tlast = port_tx_axis_tlast[QSFP1_IND];
+        assign qsfp1_tx_axis_tuser = port_tx_axis_tuser[QSFP1_IND];
 
-        assign qsfp1_txd_2 = port_xgmii_txd[QSFP1_2_IND*64 +: 64];
-        assign qsfp1_txc_2 = port_xgmii_txc[QSFP1_2_IND*8 +: 8];
+        assign port_rx_clk[QSFP1_IND] = qsfp1_rx_clk;
+        assign port_rx_rst[QSFP1_IND] = qsfp1_rx_rst;
+        assign port_rx_axis_tdata[QSFP1_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH] = qsfp1_rx_axis_tdata;
+        assign port_rx_axis_tkeep[QSFP1_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH] = qsfp1_rx_axis_tkeep;
+        assign port_rx_axis_tvalid[QSFP1_IND] = qsfp1_rx_axis_tvalid;
+        assign port_rx_axis_tlast[QSFP1_IND] = qsfp1_rx_axis_tlast;
+        assign port_rx_axis_tuser[QSFP1_IND] = qsfp1_rx_axis_tuser;
     end else begin
-        assign qsfp1_txd_2 = 64'h0707070707070707;
-        assign qsfp1_txc_2 = 8'hff;
-    end
-
-    if (QSFP1_3_IND >= 0 && QSFP1_3_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP1_3_IND] = qsfp1_tx_clk_3;
-        assign port_xgmii_tx_rst[QSFP1_3_IND] = qsfp1_tx_rst_3;
-        assign port_xgmii_rx_clk[QSFP1_3_IND] = qsfp1_rx_clk_3;
-        assign port_xgmii_rx_rst[QSFP1_3_IND] = qsfp1_rx_rst_3;
-        assign port_xgmii_rxd[QSFP1_3_IND*64 +: 64] = qsfp1_rxd_3;
-        assign port_xgmii_rxc[QSFP1_3_IND*8 +: 8] = qsfp1_rxc_3;
-
-        assign qsfp1_txd_3 = port_xgmii_txd[QSFP1_3_IND*64 +: 64];
-        assign qsfp1_txc_3 = port_xgmii_txc[QSFP1_3_IND*8 +: 8];
-    end else begin
-        assign qsfp1_txd_3 = 64'h0707070707070707;
-        assign qsfp1_txc_3 = 8'hff;
-    end
-
-    if (QSFP1_4_IND >= 0 && QSFP1_4_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP1_4_IND] = qsfp1_tx_clk_4;
-        assign port_xgmii_tx_rst[QSFP1_4_IND] = qsfp1_tx_rst_4;
-        assign port_xgmii_rx_clk[QSFP1_4_IND] = qsfp1_rx_clk_4;
-        assign port_xgmii_rx_rst[QSFP1_4_IND] = qsfp1_rx_rst_4;
-        assign port_xgmii_rxd[QSFP1_4_IND*64 +: 64] = qsfp1_rxd_4;
-        assign port_xgmii_rxc[QSFP1_4_IND*8 +: 8] = qsfp1_rxc_4;
-
-        assign qsfp1_txd_4 = port_xgmii_txd[QSFP1_4_IND*64 +: 64];
-        assign qsfp1_txc_4 = port_xgmii_txc[QSFP1_4_IND*8 +: 8];
-    end else begin
-        assign qsfp1_txd_4 = 64'h0707070707070707;
-        assign qsfp1_txc_4 = 8'hff;
-    end
-
-    if (QSFP2_1_IND >= 0 && QSFP2_1_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_1_IND] = qsfp2_tx_clk_1;
-        assign port_xgmii_tx_rst[QSFP2_1_IND] = qsfp2_tx_rst_1;
-        assign port_xgmii_rx_clk[QSFP2_1_IND] = qsfp2_rx_clk_1;
-        assign port_xgmii_rx_rst[QSFP2_1_IND] = qsfp2_rx_rst_1;
-        assign port_xgmii_rxd[QSFP2_1_IND*64 +: 64] = qsfp2_rxd_1;
-        assign port_xgmii_rxc[QSFP2_1_IND*8 +: 8] = qsfp2_rxc_1;
-
-        assign qsfp2_txd_1 = port_xgmii_txd[QSFP2_1_IND*64 +: 64];
-        assign qsfp2_txc_1 = port_xgmii_txc[QSFP2_1_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_1 = 64'h0707070707070707;
-        assign qsfp2_txc_1 = 8'hff;
-    end
-
-    if (QSFP2_2_IND >= 0 && QSFP2_2_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_2_IND] = qsfp2_tx_clk_2;
-        assign port_xgmii_tx_rst[QSFP2_2_IND] = qsfp2_tx_rst_2;
-        assign port_xgmii_rx_clk[QSFP2_2_IND] = qsfp2_rx_clk_2;
-        assign port_xgmii_rx_rst[QSFP2_2_IND] = qsfp2_rx_rst_2;
-        assign port_xgmii_rxd[QSFP2_2_IND*64 +: 64] = qsfp2_rxd_2;
-        assign port_xgmii_rxc[QSFP2_2_IND*8 +: 8] = qsfp2_rxc_2;
-
-        assign qsfp2_txd_2 = port_xgmii_txd[QSFP2_2_IND*64 +: 64];
-        assign qsfp2_txc_2 = port_xgmii_txc[QSFP2_2_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_2 = 64'h0707070707070707;
-        assign qsfp2_txc_2 = 8'hff;
-    end
-
-    if (QSFP2_3_IND >= 0 && QSFP2_3_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_3_IND] = qsfp2_tx_clk_3;
-        assign port_xgmii_tx_rst[QSFP2_3_IND] = qsfp2_tx_rst_3;
-        assign port_xgmii_rx_clk[QSFP2_3_IND] = qsfp2_rx_clk_3;
-        assign port_xgmii_rx_rst[QSFP2_3_IND] = qsfp2_rx_rst_3;
-        assign port_xgmii_rxd[QSFP2_3_IND*64 +: 64] = qsfp2_rxd_3;
-        assign port_xgmii_rxc[QSFP2_3_IND*8 +: 8] = qsfp2_rxc_3;
-
-        assign qsfp2_txd_3 = port_xgmii_txd[QSFP2_3_IND*64 +: 64];
-        assign qsfp2_txc_3 = port_xgmii_txc[QSFP2_3_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_3 = 64'h0707070707070707;
-        assign qsfp2_txc_3 = 8'hff;
-    end
-
-    if (QSFP2_4_IND >= 0 && QSFP2_4_IND < PORT_COUNT) begin
-        assign port_xgmii_tx_clk[QSFP2_4_IND] = qsfp2_tx_clk_4;
-        assign port_xgmii_tx_rst[QSFP2_4_IND] = qsfp2_tx_rst_4;
-        assign port_xgmii_rx_clk[QSFP2_4_IND] = qsfp2_rx_clk_4;
-        assign port_xgmii_rx_rst[QSFP2_4_IND] = qsfp2_rx_rst_4;
-        assign port_xgmii_rxd[QSFP2_4_IND*64 +: 64] = qsfp2_rxd_4;
-        assign port_xgmii_rxc[QSFP2_4_IND*8 +: 8] = qsfp2_rxc_4;
-
-        assign qsfp2_txd_4 = port_xgmii_txd[QSFP2_4_IND*64 +: 64];
-        assign qsfp2_txc_4 = port_xgmii_txc[QSFP2_4_IND*8 +: 8];
-    end else begin
-        assign qsfp2_txd_4 = 64'h0707070707070707;
-        assign qsfp2_txc_4 = 8'hff;
+        assign qsfp1_tx_axis_tdata = {AXIS_ETH_DATA_WIDTH{1'b0}};
+        assign qsfp1_tx_axis_tkeep = {AXIS_ETH_KEEP_WIDTH{1'b0}};
+        assign qsfp1_tx_axis_tvalid = 1'b0;
+        assign qsfp1_tx_axis_tlast = 1'b0;
+        assign qsfp1_tx_axis_tuser = 1'b0;
     end
 
     case (IF_COUNT)
         1: assign msi_irq = if_msi_irq[0*32+:32];
         2: assign msi_irq = if_msi_irq[0*32+:32] | if_msi_irq[1*32+:32];
-        3: assign msi_irq = if_msi_irq[0*32+:32] | if_msi_irq[1*32+:32] | if_msi_irq[2*32+:32];
-        4: assign msi_irq = if_msi_irq[0*32+:32] | if_msi_irq[1*32+:32] | if_msi_irq[2*32+:32] | if_msi_irq[3*32+:32];
-        5: assign msi_irq = if_msi_irq[0*32+:32] | if_msi_irq[1*32+:32] | if_msi_irq[2*32+:32] | if_msi_irq[3*32+:32] | if_msi_irq[4*32+:32];
-        6: assign msi_irq = if_msi_irq[0*32+:32] | if_msi_irq[1*32+:32] | if_msi_irq[2*32+:32] | if_msi_irq[3*32+:32] | if_msi_irq[4*32+:32] | if_msi_irq[5*32+:32];
-        7: assign msi_irq = if_msi_irq[0*32+:32] | if_msi_irq[1*32+:32] | if_msi_irq[2*32+:32] | if_msi_irq[3*32+:32] | if_msi_irq[4*32+:32] | if_msi_irq[5*32+:32] | if_msi_irq[6*32+:32];
-        8: assign msi_irq = if_msi_irq[0*32+:32] | if_msi_irq[1*32+:32] | if_msi_irq[2*32+:32] | if_msi_irq[3*32+:32] | if_msi_irq[4*32+:32] | if_msi_irq[5*32+:32] | if_msi_irq[6*32+:32] | if_msi_irq[7*32+:32];
     endcase
 
     for (n = 0; n < IF_COUNT; n = n + 1) begin : iface
@@ -2461,85 +2188,100 @@ generate
 
         for (m = 0; m < PORTS_PER_IF; m = m + 1) begin : mac
 
-            eth_mac_10g_fifo #(
-                .DATA_WIDTH(64),
-                .AXIS_DATA_WIDTH(AXIS_DATA_WIDTH),
-                .AXIS_KEEP_ENABLE(AXIS_KEEP_WIDTH > 1),
-                .AXIS_KEEP_WIDTH(AXIS_KEEP_WIDTH),
-                .ENABLE_PADDING(ENABLE_PADDING),
-                .ENABLE_DIC(ENABLE_DIC),
-                .MIN_FRAME_LENGTH(MIN_FRAME_LENGTH),
-                .TX_FIFO_DEPTH(TX_FIFO_DEPTH),
-                .TX_FRAME_FIFO(1),
-                .RX_FIFO_DEPTH(RX_FIFO_DEPTH),
-                .RX_FRAME_FIFO(1),
-                .LOGIC_PTP_PERIOD_NS(LOGIC_PTP_PERIOD_NS),
-                .LOGIC_PTP_PERIOD_FNS(LOGIC_PTP_PERIOD_FNS),
-                .PTP_PERIOD_NS(IF_PTP_PERIOD_NS),
-                .PTP_PERIOD_FNS(IF_PTP_PERIOD_FNS),
-                .PTP_USE_SAMPLE_CLOCK(0),
-                .TX_PTP_TS_ENABLE(PTP_TS_ENABLE),
-                .RX_PTP_TS_ENABLE(PTP_TS_ENABLE),
-                .TX_PTP_TS_FIFO_DEPTH(TX_PTP_TS_FIFO_DEPTH),
-                .RX_PTP_TS_FIFO_DEPTH(RX_PTP_TS_FIFO_DEPTH),
-                .PTP_TS_WIDTH(PTP_TS_WIDTH),
-                .TX_PTP_TAG_ENABLE(0),
-                .PTP_TAG_WIDTH(16)
+            axis_async_fifo #(
+                .DEPTH(TX_FIFO_DEPTH),
+                .DATA_WIDTH(AXIS_ETH_DATA_WIDTH),
+                .KEEP_ENABLE(AXIS_ETH_KEEP_WIDTH > 1),
+                .KEEP_WIDTH(AXIS_ETH_KEEP_WIDTH),
+                .LAST_ENABLE(1),
+                .ID_ENABLE(0),
+                .DEST_ENABLE(0),
+                .USER_ENABLE(1),
+                .USER_WIDTH(1),
+                .FRAME_FIFO(1),
+                .USER_BAD_FRAME_VALUE(1'b1),
+                .USER_BAD_FRAME_MASK(1'b1),
+                .DROP_BAD_FRAME(1),
+                .DROP_WHEN_FULL(0)
             )
-            eth_mac_inst (
-                .rx_clk(port_xgmii_rx_clk[n*PORTS_PER_IF+m]),
-                .rx_rst(port_xgmii_rx_rst[n*PORTS_PER_IF+m]),
-                .tx_clk(port_xgmii_tx_clk[n*PORTS_PER_IF+m]),
-                .tx_rst(port_xgmii_tx_rst[n*PORTS_PER_IF+m]),
-                .logic_clk(clk_250mhz),
-                .logic_rst(rst_250mhz),
-                .ptp_sample_clk(clk_250mhz),
+            mac_tx_fifo_inst (
+                // Common reset
+                .async_rst(rst_250mhz | port_tx_rst[n*PORTS_PER_IF+m]),
+                // AXI input
+                .s_clk(clk_250mhz),
+                .s_axis_tdata(tx_axis_tdata[m*AXIS_DATA_WIDTH +: AXIS_DATA_WIDTH]),
+                .s_axis_tkeep(tx_axis_tkeep[m*AXIS_KEEP_WIDTH +: AXIS_KEEP_WIDTH]),
+                .s_axis_tvalid(tx_axis_tvalid[m +: 1]),
+                .s_axis_tready(tx_axis_tready[m +: 1]),
+                .s_axis_tlast(tx_axis_tlast[m +: 1]),
+                .s_axis_tid(0),
+                .s_axis_tdest(0),
+                .s_axis_tuser(tx_axis_tuser[m +: 1]),
+                // AXI output
+                .m_clk(port_tx_clk[n*PORTS_PER_IF+m]),
+                .m_axis_tdata(port_tx_axis_tdata[(n*PORTS_PER_IF+m)*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH]),
+                .m_axis_tkeep(port_tx_axis_tkeep[(n*PORTS_PER_IF+m)*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH]),
+                .m_axis_tvalid(port_tx_axis_tvalid[n*PORTS_PER_IF+m]),
+                .m_axis_tready(port_tx_axis_tready[n*PORTS_PER_IF+m]),
+                .m_axis_tlast(port_tx_axis_tlast[n*PORTS_PER_IF+m]),
+                .m_axis_tid(),
+                .m_axis_tdest(),
+                .m_axis_tuser(port_tx_axis_tuser[n*PORTS_PER_IF+m]),
+                // Status
+                .s_status_overflow(),
+                .s_status_bad_frame(),
+                .s_status_good_frame(),
+                .m_status_overflow(),
+                .m_status_bad_frame(),
+                .m_status_good_frame()
+            );
 
-                .tx_axis_tdata(tx_axis_tdata[m*AXIS_DATA_WIDTH +: AXIS_DATA_WIDTH]),
-                .tx_axis_tkeep(tx_axis_tkeep[m*AXIS_KEEP_WIDTH +: AXIS_KEEP_WIDTH]),
-                .tx_axis_tvalid(tx_axis_tvalid[m +: 1]),
-                .tx_axis_tready(tx_axis_tready[m +: 1]),
-                .tx_axis_tlast(tx_axis_tlast[m +: 1]),
-                .tx_axis_tuser(tx_axis_tuser[m +: 1]),
-
-                .s_axis_tx_ptp_ts_tag(0),
-                .s_axis_tx_ptp_ts_valid(0),
-                .s_axis_tx_ptp_ts_ready(),
-
-                .m_axis_tx_ptp_ts_96(tx_ptp_ts_96[m*PTP_TS_WIDTH +: PTP_TS_WIDTH]),
-                .m_axis_tx_ptp_ts_tag(),
-                .m_axis_tx_ptp_ts_valid(tx_ptp_ts_valid[m +: 1]),
-                .m_axis_tx_ptp_ts_ready(tx_ptp_ts_ready[m +: 1]),
-
-                .rx_axis_tdata(rx_axis_tdata[m*AXIS_DATA_WIDTH +: AXIS_DATA_WIDTH]),
-                .rx_axis_tkeep(rx_axis_tkeep[m*AXIS_KEEP_WIDTH +: AXIS_KEEP_WIDTH]),
-                .rx_axis_tvalid(rx_axis_tvalid[m +: 1]),
-                .rx_axis_tready(rx_axis_tready[m +: 1]),
-                .rx_axis_tlast(rx_axis_tlast[m +: 1]),
-                .rx_axis_tuser(rx_axis_tuser[m +: 1]),
-
-                .m_axis_rx_ptp_ts_96(rx_ptp_ts_96[m*PTP_TS_WIDTH +: PTP_TS_WIDTH]),
-                .m_axis_rx_ptp_ts_valid(rx_ptp_ts_valid[m +: 1]),
-                .m_axis_rx_ptp_ts_ready(rx_ptp_ts_ready[m +: 1]),
-
-                .xgmii_rxd(port_xgmii_rxd[(n*PORTS_PER_IF+m)*64 +: 64]),
-                .xgmii_rxc(port_xgmii_rxc[(n*PORTS_PER_IF+m)*8 +: 8]),
-                .xgmii_txd(port_xgmii_txd[(n*PORTS_PER_IF+m)*64 +: 64]),
-                .xgmii_txc(port_xgmii_txc[(n*PORTS_PER_IF+m)*8 +: 8]),
-
-                .tx_error_underflow(),
-                .tx_fifo_overflow(),
-                .tx_fifo_bad_frame(),
-                .tx_fifo_good_frame(),
-                .rx_error_bad_frame(),
-                .rx_error_bad_fcs(),
-                .rx_fifo_overflow(),
-                .rx_fifo_bad_frame(),
-                .rx_fifo_good_frame(),
-
-                .ptp_ts_96(ptp_ts_96),
-
-                .ifg_delay(8'd12)
+            axis_async_fifo #(
+                .DEPTH(RX_FIFO_DEPTH),
+                .DATA_WIDTH(AXIS_ETH_DATA_WIDTH),
+                .KEEP_ENABLE(AXIS_ETH_KEEP_WIDTH > 1),
+                .KEEP_WIDTH(AXIS_ETH_KEEP_WIDTH),
+                .LAST_ENABLE(1),
+                .ID_ENABLE(0),
+                .DEST_ENABLE(0),
+                .USER_ENABLE(1),
+                .USER_WIDTH(1),
+                .FRAME_FIFO(1),
+                .USER_BAD_FRAME_VALUE(1'b1),
+                .USER_BAD_FRAME_MASK(1'b1),
+                .DROP_BAD_FRAME(1),
+                .DROP_WHEN_FULL(1)
+            )
+            mac_rx_fifo_inst (
+                // Common reset
+                .async_rst(port_rx_rst[n*PORTS_PER_IF+m] | rst_250mhz),
+                // AXI input
+                .s_clk(port_rx_clk[n*PORTS_PER_IF+m]),
+                .s_axis_tdata(port_rx_axis_tdata[(n*PORTS_PER_IF+m)*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH]),
+                .s_axis_tkeep(port_rx_axis_tkeep[(n*PORTS_PER_IF+m)*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH]),
+                .s_axis_tvalid(port_rx_axis_tvalid[n*PORTS_PER_IF+m]),
+                .s_axis_tready(),
+                .s_axis_tlast(port_rx_axis_tlast[n*PORTS_PER_IF+m]),
+                .s_axis_tid(0),
+                .s_axis_tdest(0),
+                .s_axis_tuser(port_rx_axis_tuser[n*PORTS_PER_IF+m]),
+                // AXI output
+                .m_clk(clk_250mhz),
+                .m_axis_tdata(rx_axis_tdata[m*AXIS_DATA_WIDTH +: AXIS_DATA_WIDTH]),
+                .m_axis_tkeep(rx_axis_tkeep[m*AXIS_KEEP_WIDTH +: AXIS_KEEP_WIDTH]),
+                .m_axis_tvalid(rx_axis_tvalid[m +: 1]),
+                .m_axis_tready(rx_axis_tready[m +: 1]),
+                .m_axis_tlast(rx_axis_tlast[m +: 1]),
+                .m_axis_tid(),
+                .m_axis_tdest(),
+                .m_axis_tuser(rx_axis_tuser[m +: 1]),
+                // Status
+                .s_status_overflow(),
+                .s_status_bad_frame(),
+                .s_status_good_frame(),
+                .m_status_overflow(),
+                .m_status_bad_frame(),
+                .m_status_good_frame()
             );
 
         end
