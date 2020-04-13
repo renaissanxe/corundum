@@ -1,0 +1,30 @@
+#-----------------------------------------------------------
+# Vivado v2019.2 (64-bit)
+# SW Build 2708876 on Wed Nov  6 21:39:14 MST 2019
+# IP Build 2700528 on Thu Nov  7 00:09:20 MST 2019
+# Start of session at: Sat Apr 11 20:08:23 2020
+# Process ID: 131782
+# Current directory: /proj/xsjhdstaff6/jamiey/ucsd_100g/corundum/fpga/mqnic/AU250/fpga_100g/ip
+# Command line: vivado
+# Log file: /proj/xsjhdstaff6/jamiey/ucsd_100g/corundum/fpga/mqnic/AU250/fpga_100g/ip/vivado.log
+# Journal file: /proj/xsjhdstaff6/jamiey/ucsd_100g/corundum/fpga/mqnic/AU250/fpga_100g/ip/vivado.jou
+#-----------------------------------------------------------
+start_gui
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vck190_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vck190/es/1.0/board.xml as part xcvc1902-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vmk180_es:part0:1.0 available at /proj/gsd/vivado/Vivado/2019.2/data/boards/board_files/vmk180/es/1.0/board.xml as part xcvm1802-vsva2197-2mp-e-s-es1 specified in board_part file is either invalid or not available
+exit
+INFO: [Common 17-206] Exiting Vivado at Sat Apr 11 20:10:18 2020...
