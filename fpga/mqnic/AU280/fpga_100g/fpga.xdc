@@ -64,22 +64,6 @@ set_property -dict {LOC R41 } [get_ports qsfp0_mgt_refclk_1_n] ;# MGTREFCLK1N_23
 set_property -dict {LOC G32 IOSTANDARD LVCMOS18} [get_ports qsfp0_fs]
 set_property -dict {LOC H32 IOSTANDARD LVCMOS18} [get_ports qsfp0_reset]
 
-
-
-# 156.25 MHz MGT reference clock (from SI570)
-#create_clock -period 6.400 -name qsfp0_mgt_refclk_0 [get_ports qsfp0_mgt_refclk_0_p]
-
-# 156.25 MHz MGT reference clock (from SI5335, FS = 0b01)
-#create_clock -period 6.400 -name qsfp0_mgt_refclk_1 [get_ports qsfp0_mgt_refclk_1_p]
-
-# 161.1328125 MHz MGT reference clock (from SI5335, FS = 0b10)
-#create_clock -period 6.206 -name qsfp0_mgt_refclk_1 [get_ports qsfp0_mgt_refclk_1_p]
-
-set_property -dict {LOC M42 } [get_ports qsfp1_mgt_refclk_1_p] ;# MGTREFCLK1P_230 from U12.18
-set_property -dict {LOC M43 } [get_ports qsfp1_mgt_refclk_1_n] ;# MGTREFCLK1N_230 from U12.17
-set_property -dict {LOC G33 IOSTANDARD LVCMOS18} [get_ports qsfp1_fs]
-set_property -dict {LOC H30 IOSTANDARD LVCMOS18} [get_ports qsfp1_reset]
-
 set_property PACKAGE_PIN L54              [get_ports "qsfp0_rx1_n"]                        ;# Bank 134 - MGTYRXN0_134
 set_property PACKAGE_PIN K52              [get_ports "qsfp0_rx2_n"]                        ;# Bank 134 - MGTYRXN1_134
 set_property PACKAGE_PIN J54              [get_ports "qsfp0_rx3_n"]                        ;# Bank 134 - MGTYRXN2_134
@@ -96,19 +80,21 @@ set_property PACKAGE_PIN L48              [get_ports "qsfp0_tx1_p"]             
 set_property PACKAGE_PIN L44              [get_ports "qsfp0_tx2_p"]                        ;# Bank 134 - MGTYTXP1_134
 set_property PACKAGE_PIN K46              [get_ports "qsfp0_tx3_p"]                        ;# Bank 134 - MGTYTXP2_134
 set_property PACKAGE_PIN J48              [get_ports "qsfp0_tx4_p"]                        ;# Bank 134 - MGTYTXP3_134
+
+
 # 156.25 MHz MGT reference clock (from SI570)
-#create_clock -period 6.400 -name qsfp1_mgt_refclk_0 [get_ports qsfp1_mgt_refclk_0_p]
+#create_clock -period 6.400 -name qsfp0_mgt_refclk_0 [get_ports qsfp0_mgt_refclk_0_p]
 
 # 156.25 MHz MGT reference clock (from SI5335, FS = 0b01)
-#create_clock -period 6.400 -name qsfp1_mgt_refclk_1 [get_ports qsfp1_mgt_refclk_1_p]
+#create_clock -period 6.400 -name qsfp0_mgt_refclk_1 [get_ports qsfp0_mgt_refclk_1_p]
 
 # 161.1328125 MHz MGT reference clock (from SI5335, FS = 0b10)
-#create_clock -period 6.206 -name qsfp1_mgt_refclk_1 [get_ports qsfp1_mgt_refclk_1_p]
+#create_clock -period 6.206 -name qsfp0_mgt_refclk_1 [get_ports qsfp0_mgt_refclk_1_p]
 
-# I2C interface
-#set_property -dict {LOC BF19 IOSTANDARD LVCMOS12 SLEW SLOW DRIVE 8} [get_ports i2c_mux_reset]
-set_property -dict {LOC C30 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports i2c_scl]
-set_property -dict {LOC C33 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports i2c_sda]
+set_property -dict {LOC M42 } [get_ports qsfp1_mgt_refclk_1_p] ;# MGTREFCLK1P_230 from U12.18
+set_property -dict {LOC M43 } [get_ports qsfp1_mgt_refclk_1_n] ;# MGTREFCLK1N_230 from U12.17
+set_property -dict {LOC G33 IOSTANDARD LVCMOS18} [get_ports qsfp1_fs]
+set_property -dict {LOC H30 IOSTANDARD LVCMOS18} [get_ports qsfp1_reset]
 
 set_property PACKAGE_PIN G54              [get_ports "qsfp1_rx1_n"]                        ;# Bank 135 - MGTYRXN0_135
 set_property PACKAGE_PIN F52              [get_ports "qsfp1_rx2_n"]                        ;# Bank 135 - MGTYRXN1_135
@@ -126,6 +112,20 @@ set_property PACKAGE_PIN G48              [get_ports "qsfp1_tx1_p"]             
 set_property PACKAGE_PIN E48              [get_ports "qsfp1_tx2_p"]                        ;# Bank 135 - MGTYTXP1_135
 set_property PACKAGE_PIN C48              [get_ports "qsfp1_tx3_p"]                        ;# Bank 135 - MGTYTXP2_135
 set_property PACKAGE_PIN A49              [get_ports "qsfp1_tx4_p"]                        ;# Bank 135 - MGTYTXP3_135
+# 156.25 MHz MGT reference clock (from SI570)
+#create_clock -period 6.400 -name qsfp1_mgt_refclk_0 [get_ports qsfp1_mgt_refclk_0_p]
+
+# 156.25 MHz MGT reference clock (from SI5335, FS = 0b01)
+#create_clock -period 6.400 -name qsfp1_mgt_refclk_1 [get_ports qsfp1_mgt_refclk_1_p]
+
+# 161.1328125 MHz MGT reference clock (from SI5335, FS = 0b10)
+#create_clock -period 6.206 -name qsfp1_mgt_refclk_1 [get_ports qsfp1_mgt_refclk_1_p]
+
+# I2C interface
+#set_property -dict {LOC BF19 IOSTANDARD LVCMOS12 SLEW SLOW DRIVE 8} [get_ports i2c_mux_reset]
+set_property -dict {LOC C30 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports i2c_scl]
+set_property -dict {LOC C33 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports i2c_sda]
+
 
 # 100 MHz MGT reference clock
 create_clock -period 10 -name pcie_mgt_refclk_1 [get_ports pcie_refclk_p]
